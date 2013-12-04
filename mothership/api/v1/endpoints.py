@@ -4,6 +4,9 @@ from flask import request
 from api import api  # Circular, but safe
 from .decorators import limit
 from .helpers import get_serializer
+from .resources.contact import ContactResource
+
+contacts = ContactResource()
 
 
 def _create_serialized_response(response_data):
@@ -19,9 +22,6 @@ def _create_serialized_response(response_data):
 
 @api.route('/contact', methods=['GET'])
 @limit(max_requests=10, period=60, by="ip")
-def contact():
-    return _create_serialized_response({'contacts': [{'name': 'evan',
-                                        'identity': {'mode': 'msisdn',
-                                                     'id': '1234'},
-                                        'product': 'ureport',
-                                        'location': 'kampala'}]})
+def get_contact():
+    result = contacts.get()
+    return _create_serialized_response({'contacts': [result]})

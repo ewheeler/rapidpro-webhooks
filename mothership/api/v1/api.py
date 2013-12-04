@@ -14,18 +14,15 @@ def inject_rate_limit_headers(response):
     except (AttributeError, ValueError):
         return response
     else:
-        h = response.headers
-        h.add('X-RateLimit-Remaining', remaining)
-        h.add('X-RateLimit-Limit', max_requests)
-        h.add('X-RateLimit-Reset', reset)
+        response.headers.add('X-Startrac-RateLimit-remaining', remaining)
+        response.headers.add('X-Startrac-RateLimit-limit', max_requests)
+        response.headers.add('X-Startrac-RateLimit-reset', reset)
         return response
 
 
 @api.after_request
-def inject_version_headers(response):
-    h = response.headers
-    h.add('X-startrac-git-latest-sha', getattr(current_app, 'git_latest_sha'))
-    h.add('X-startrac-git-branch', getattr(current_app, 'git_branch'))
-    h.add('X-startrac-git-tag', getattr(current_app, 'git_tag'))
-    h.add('X-startrac-hostname', getattr(current_app, 'hostname'))
+def inject_debug_headers(response):
+    for attr in current_app.env_attrs.keys():
+        response.headers.add('X-Startrac-Debug-%s' % (attr),
+                             getattr(current_app, attr))
     return response
