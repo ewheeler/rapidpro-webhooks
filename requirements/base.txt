@@ -1,0 +1,8 @@
+flask
+requests
+phonenumbers==5.9b1
+rq
+rq-dashboard
+flask-login
+gevent
+u-msgpack-python
