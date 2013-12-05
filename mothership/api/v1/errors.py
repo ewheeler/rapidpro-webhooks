@@ -1,4 +1,6 @@
 from flask import jsonify
+from flask import Response
+from flask import current_app
 
 from api import api
 import exceptions
@@ -26,12 +28,22 @@ def handle_resource_unavailable_error(error):
     return response
 
 
-@api.errorhandler(exceptions.APIError)
+@api.errorhandler(exceptions.RateLimitError)
+def handle_rate_limit_error(error):
+    response = jsonify({
+        'type': 'client',
+        'msg': error.message,
+        'resource': error.resource})
+    response.status_code = error.code
+    return response
+
+
+@current_app.errorhandler(exceptions.APIError)
 def handle_api_error(error):
     response = jsonify({
         'type': 'client',
         'msg': error.message,
         'resource': error.resource,
         'field': error.field})
-    response.status_code = 400
-    return response
+    response.status_code = error.code
+    return Response(response)

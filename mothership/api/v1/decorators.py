@@ -4,11 +4,12 @@ import uuid
 import gevent
 
 from flask import request
-from flask import Response
 from flask import g
 from flask import jsonify
 from flask import copy_current_request_context
 import redis
+
+import exceptions
 
 r = redis.Redis()
 
@@ -40,7 +41,7 @@ def limit(max_requests=100, period=60, by="ip", group=None):
                 r.incr(key, 1)
                 return f(*args, **kwargs)
             else:
-                return Response("Too Many Requests", 429)
+                raise exceptions.RateLimitError()
         return wrapped
     return decorator
 

@@ -1,11 +1,16 @@
-# should this be an Exception instead?
-class ResourceError(RuntimeError):
-    pass
+from werkzeug.exceptions import HTTPException
+
+
+class ResourceError(HTTPException):
+
+    def __init__(self):
+        self.code = 503
 
 
 class ResourceUnavailableError(ResourceError):
 
     def __init__(self, resource, message):
+        self.code = 504
         self.resource = resource
         self.message = message
 

@@ -16,7 +16,8 @@ def get_serializer(response_format='JSON'):
     try:
         assert response_format in RESPONSE_FORMATS
     except AssertionError:
-        raise exceptions.APIError(message='invalid response format',
+        raise exceptions.APIError(code=400,
+                                  message='invalid response format',
                                   field=response_format,
                                   resource=response_format)
 
