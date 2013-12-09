@@ -14,7 +14,7 @@ def handle_contact_validation_error(error):
         'type': 'validation',
         'msg': error.message,
         'field': error.field})
-    response.status_code = 400
+    response.status_code = error.code or 400
     return response
 
 
@@ -24,7 +24,7 @@ def handle_resource_unavailable_error(error):
         'type': 'server',
         'msg': error.message,
         'resource': error.resource})
-    response.status_code = 500
+    response.status_code = error.code or 503
     return response
 
 
@@ -34,7 +34,7 @@ def handle_rate_limit_error(error):
         'type': 'client',
         'msg': error.message,
         'resource': error.resource})
-    response.status_code = error.code
+    response.status_code = error.code or 429
     return response
 
 
@@ -45,5 +45,5 @@ def handle_api_error(error):
         'msg': error.message,
         'resource': error.resource,
         'field': error.field})
-    response.status_code = error.code
+    response.status_code = error.code or 400
     return Response(response)
