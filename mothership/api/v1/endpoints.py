@@ -1,11 +1,13 @@
-from flask import Response
 from flask import request
 from flask import url_for
 from flask import current_app
 
 from api import api  # Circular, but safe
 from .decorators import limit
-from .helpers import get_serializer
+from .helpers import serialize_data_to_response
+from .helpers import is_serializer_registered
+from .helpers import SERIALIZER_TYPES
+from .serializers import registry
 from .resources.contact import ContactResource
 from .resources.group import GroupResource
 
@@ -19,14 +21,33 @@ def _create_serialized_response(response_data):
     """ Convenience method to serialize a python dict to
         json or msgpack based on request's `format` argument
     """
-    # if request includes format argument, use it.
-    # otherwise use json by default
-    response_format = request.args.get('format', 'json').upper()
-    # get appropriate serializer function and content type
-    # for the requested format
-    func, response_content_type = get_serializer(response_format)
-    # return response object with serialized data and content_type
-    return Response(func(response_data), content_type=response_content_type)
+    # if request includes format argument, get it.
+    serializer_slug = request.args.get('format')
+
+    if serializer_slug is not None:
+        # `format` is not required, so if an unregisterd format is
+        # requested then this will raise an exception and return a 422.
+        # Also, even if headers indicate a different content type,
+        # the explicitly passed format arg will be preferred.
+        return serialize_data_to_response(data=response_data,
+                                          serializer_slug=serializer_slug)
+
+    # if format is not explicitly given as an arg, look at request headers
+    mimes = request.accept_mimetypes  # shorthand to prevent lines > 79 chars
+    best = mimes.best_match(SERIALIZER_TYPES)
+
+    # Why check if msgpack has a higher quality than default and not just
+    # go with the best match? Because some browsers accept on */* and
+    # we don't want to deliver msgpack to anything not asking for it.
+    # TODO if request header accepts msgpack but serializer is not registered,
+    # we will silently return json instead of an error
+    if is_serializer_registered('msgpack'):
+        if (best == registry.get('msgpack').content_type) \
+                and (mimes[best] > mimes[registry.default.content_type]):
+            serializer_slug = best
+
+    return serialize_data_to_response(data=response_data,
+                                      serializer_slug=serializer_slug)
 
 
 @api.route('/contact', methods=['GET'])

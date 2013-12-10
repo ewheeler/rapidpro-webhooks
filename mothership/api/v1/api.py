@@ -2,8 +2,15 @@ from flask import Blueprint
 from flask import g
 from flask import current_app
 
+import serializers
+
+# register msgpack serializer (json is registered by default)
+serializers.registry.register(serializers.MsgpackSerializer, 'msgpack')
+
+# define blueprint
 api = Blueprint('api', __name__)
 
+# import endpoints AFTER defining blueprint and registering serializers
 import endpoints
 
 
