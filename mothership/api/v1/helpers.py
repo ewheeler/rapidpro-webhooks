@@ -24,7 +24,9 @@ def serialize_data_to_response(data=None, serializer_slug=None):
         data (a mapping like dict) into the given format.
         serializer_slug can be either the format name (e.g., 'json')
         or the response content type describing that format
-        (e.g., 'application/json')
+        (e.g., 'application/json').
+        Returns a flask Response object containing serialized data
+        and the corresponding content_type
     """
     if serializer_slug is None:
         serializer_slug = registry.default.content_type
@@ -34,15 +36,12 @@ def serialize_data_to_response(data=None, serializer_slug=None):
                 or serializer_slug in SERIALIZER_TYPES)
     except AssertionError:
         raise exceptions.APIError(code=422,
-                                  message='invalid response format',
+                                  message='invalid serialization format',
                                   field=serializer_slug,
-                                  resource='response format')
-    try:
-        assert data is not None
-    except AssertionError:
-        # TODO
-        pass
+                                  resource='serializer')
+
     if serializer_slug in SERIALIZER_FORMATS:
         return registry.get(serializer_slug).to_response(data)
     else:
-        return registry.get(SERIALIZER_TYPES_MAP[serializer_slug]).to_response(data)
+        return registry.get(SERIALIZER_TYPES_MAP[serializer_slug])\
+            .to_response(data)

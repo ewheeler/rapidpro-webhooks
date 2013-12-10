@@ -66,8 +66,8 @@ class Registry(object):
     def unregister(self, name):
         """Unregisters an object.
 
-        **Note:** that these calls must be made in INSTALLED_APPS listed
-        after the apps that already registered the class.
+        **Note:** that these calls must be made
+        after the code that already registered the class.
         """
         # Use the name of the class if passed in. Second condition checks
         # for an instance of the class.

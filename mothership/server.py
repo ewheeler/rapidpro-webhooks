@@ -110,6 +110,7 @@ def copyright():
     now = datetime.datetime.now()
     #return "&copy; %s %s" % (now.year, app.config['BRAND_DOMAIN'])
     return "&copy; %s %s" % (now.year, 'ureport')
+
 app.jinja_env.globals['copyright'] = copyright
 
 if __name__ == '__main__':

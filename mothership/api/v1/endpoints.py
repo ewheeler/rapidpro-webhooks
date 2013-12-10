@@ -3,11 +3,13 @@ from flask import url_for
 from flask import current_app
 
 from api import api  # Circular, but safe
+
 from .decorators import limit
+from .serializers import registry
 from .helpers import serialize_data_to_response
 from .helpers import is_serializer_registered
 from .helpers import SERIALIZER_TYPES
-from .serializers import registry
+
 from .resources.contact import ContactResource
 from .resources.group import GroupResource
 
