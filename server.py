@@ -48,7 +48,7 @@ def make_json_app(import_name, **kwargs):
 
     return app
 
-app = make_json_app('mothership')
+app = make_json_app('rolodex')
 
 # http://flask.pocoo.org/docs/config/
 app.config.from_object('settings.base')
@@ -57,8 +57,8 @@ app.config.update(
 )
 #app.config.from_object('config')
 app.url_map.strict_slashes = False
-app._logger = logging.getLogger('mothership')
-app.logger_name = 'mothership'
+app._logger = logging.getLogger('rolodex')
+app.logger_name = 'rolodex'
 app.wsgi_app = ProxyFix(app.wsgi_app)
 toolbar = DebugToolbarExtension(app)
 RQ(app)
