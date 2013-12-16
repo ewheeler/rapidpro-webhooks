@@ -51,11 +51,15 @@ def make_json_app(import_name, **kwargs):
 app = make_json_app('rolodex')
 
 # http://flask.pocoo.org/docs/config/
+# load base config
 app.config.from_object('settings.base')
+# $ export ROLODEX_SETTINGS=/path/to/settings/dev.py
+# load additional config
+app.config.from_envvar('ROLODEX_SETTINGS')
+# and even add more config
 app.config.update(
-    DEBUG=True,
+    PRODUCT_NAME='ureport',
 )
-#app.config.from_object('config')
 app.url_map.strict_slashes = False
 app._logger = logging.getLogger('rolodex')
 app.logger_name = 'rolodex'
@@ -108,8 +112,7 @@ app.jinja_env.tests['printable'] = is_printable
 
 def copyright():
     now = datetime.datetime.now()
-    #return "&copy; %s %s" % (now.year, app.config['BRAND_DOMAIN'])
-    return "&copy; %s %s" % (now.year, 'ureport')
+    return "&copy; %s %s" % (now.year, app.config['PRODUCT_NAME'])
 
 app.jinja_env.globals['copyright'] = copyright
 
