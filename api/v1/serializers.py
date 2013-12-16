@@ -1,5 +1,6 @@
 import functools
 import json
+import datetime
 
 import umsgpack
 from flask import Response
@@ -36,8 +37,13 @@ class Serializer(object):
         "Return content type for serialized data"
         raise NotImplementedError("Define in subclass")
 
+    @property
+    def slug(self):
+        "Return slug for serialized data"
+        raise NotImplementedError("Define in subclass")
+
     def __unicode__(self):
-        return self.content_type.split('/')[-1]
+        return self.slug
 
     def from_dict(self, data):
         return self.encode(data)
@@ -49,12 +55,28 @@ class Serializer(object):
         return Response(self.encode(data), content_type=self.content_type)
 
 
+class BaseJSONEncoder(json.JSONEncoder):
+    """ JSONEconder subclass used by the json serializer.
+        This is needed to address the encoding of special values (like dates).
+    """
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            # convert any datetime to RFC 1123 format
+            # TODO is RFC 1123 preferred?
+            return datetime.strftime(obj, "%a, %d %b %Y %H:%M:%S GMT")
+        elif isinstance(obj, (datetime.time, datetime.date)):
+            # should not happen since the only supported
+            # date-like format is 'datetime' .
+            return obj.isoformat()
+        return json.JSONEncoder.default(self, obj)
+
+
 class JsonSerializer(Serializer):
 
     def _encoder(self):
         # TODO is it useful to have a separate method that returns a callable?
         # this allows us to abstract away serializer-specific args
-        return functools.partial(json.dumps,
+        return functools.partial(json.dumps, cls=BaseJSONEncoder,
                                  sort_keys=True, ensure_ascii=False)
 
     def _decoder(self):
@@ -79,6 +101,10 @@ class JsonSerializer(Serializer):
     @property
     def content_type(self):
         return 'application/json'
+
+    @property
+    def slug(self):
+        return 'json'
 
 
 class MsgpackSerializer(Serializer):
@@ -117,6 +143,10 @@ class MsgpackSerializer(Serializer):
     @property
     def content_type(self):
         return 'application/x-msgpack'
+
+    @property
+    def slug(self):
+        return 'msgpack'
 
 # create serializer registry with json as default
 registry = loader.Registry(default=JsonSerializer,
