@@ -19,7 +19,7 @@ contacts = ContactResource()
 groups = GroupResource()
 
 
-def _create_serialized_response(response_data):
+def _create_response(response_data):
     """ Convenience method to serialize a python dict to
         json or msgpack based on request's `format` argument
     """
@@ -52,28 +52,43 @@ def _create_serialized_response(response_data):
                                       serializer_slug=serializer_slug)
 
 
+def _rule_link(url_rule):
+    # http://en.wikipedia.org/wiki/HATEOAS
+    return {"title": url_rule.endpoint.split('.')[-1],
+            "href": url_for(url_rule.endpoint, _external=True),
+            "methods": list(url_rule.methods)}
+
+
 @api.route('/contact', methods=['GET'])
 @limit(max_requests=10, period=60, by="ip")
 def get_contact():
     result = contacts.get()
-    return _create_serialized_response({'contacts': result})
+    return _create_response({'contacts': result,
+                             '_links': {'self': _rule_link(request.url_rule)}})
 
 
 @api.route('/group/list', methods=['GET'])
 @limit(max_requests=10, period=60, by="ip")
 def list_groups():
     result = groups.list()
-    return _create_serialized_response({'groups': result})
+    return _create_response({'groups': result,
+                             '_links': {'self': _rule_link(request.url_rule)}})
 
 
 @api.route('/', methods=['GET'])
 @limit(max_requests=10, period=60, by="ip")
 def list_resources():
-    result = {}
+    # http://en.wikipedia.org/wiki/HATEOAS
+    children = []
     # TODO this seems like a hacky way to do this..
     for rule in current_app.url_map.iter_rules():
+        # e.g, `api.list_resources`
         if rule.endpoint.startswith(api.name):
-            result.update({rule.endpoint.split('.')[-1]:
-                           {"href": url_for(rule.endpoint, _external=True),
-                            "methods": list(rule.methods)}})
-    return _create_serialized_response({'resources': result})
+
+            # don't add current endpoint as child
+            if rule.endpoint != request.url_rule.endpoint:
+                children.append(_rule_link(rule))
+
+    return _create_response({'_links': {
+                             'self': _rule_link(request.url_rule),
+                             'child': children}})
