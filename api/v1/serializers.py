@@ -4,19 +4,22 @@ import datetime
 
 import umsgpack
 from flask import Response
+from werkzeug.exceptions import HTTPException
 
 import loader
-import exceptions
 
 
-class SerializationError(exceptions.APIError):
+class SerializationError(HTTPException):
+    """ TODO should this be a sublcass of exceptions.APIError? """
 
-    def __init__(self, message=None, serializer=None,
+    def __init__(self, response=None, message=None, serializer=None,
                  operation=None, error=None):
+        self.response = response
         self.message = message
         self.error = error
         self.serializer = serializer
         self.operation = operation
+        self.code = 500
         if (message is None) and all([operation, serializer]):
             self.message = "Failed to {0} data using {1} serializer".format(
                 operation, serializer)

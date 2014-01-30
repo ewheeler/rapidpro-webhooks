@@ -11,6 +11,11 @@ class APIError(HTTPException):
         self.message = message
         self.resource = resource
 
+    def get_response(self, environment):
+        resp = super(APIError, self).get_response(environment)
+        resp.status = "%s %s" % (self.code, self.name.upper())
+        return resp
+
 
 class RateLimitError(APIError):
 
