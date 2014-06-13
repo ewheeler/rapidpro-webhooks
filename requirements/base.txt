@@ -6,3 +6,4 @@ rq-dashboard
 flask-login
 gevent
 u-msgpack-python
+couchdbkit==0.6.5

@@ -16,7 +16,7 @@ from werkzeug.exceptions import HTTPException
 
 # flask extensions
 # from raven.contrib.flask import Sentry
-from flask_debugtoolbar import DebugToolbarExtension
+#from flask_debugtoolbar import DebugToolbarExtension
 from flask.ext.rq import RQ
 
 
@@ -48,23 +48,23 @@ def make_json_app(import_name, **kwargs):
 
     return app
 
-app = make_json_app('rolodex')
+app = make_json_app('webhooks')
 
 # http://flask.pocoo.org/docs/config/
 # load base config
 app.config.from_object('settings.base')
 # $ export ROLODEX_SETTINGS=/path/to/settings/dev.py
 # load additional config
-app.config.from_envvar('ROLODEX_SETTINGS')
+app.config.from_envvar('RPWEBHOOKS_SETTINGS')
 # and even add more config
 app.config.update(
-    PRODUCT_NAME='ureport',
+    PRODUCT_NAME='rpwebhooks',
 )
 app.url_map.strict_slashes = False
-app._logger = logging.getLogger('rolodex')
-app.logger_name = 'rolodex'
+app._logger = logging.getLogger('rpwebhooks')
+app.logger_name = 'rpwebhooks'
 app.wsgi_app = ProxyFix(app.wsgi_app)
-toolbar = DebugToolbarExtension(app)
+#toolbar = DebugToolbarExtension(app)
 RQ(app)
 
 

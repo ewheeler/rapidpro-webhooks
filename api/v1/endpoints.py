@@ -8,8 +8,9 @@ from .helpers import create_response
 from .helpers import rule_link
 
 # import endpoints in other modules
-import rolodex
-import registrar
+import thousand
+import ureport
+import mvrs
 
 
 @api.route('/', methods=['GET'])

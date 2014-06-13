@@ -66,7 +66,7 @@ class BaseJSONEncoder(json.JSONEncoder):
         if isinstance(obj, datetime.datetime):
             # convert any datetime to RFC 1123 format
             # TODO is RFC 1123 preferred?
-            return datetime.strftime(obj, "%a, %d %b %Y %H:%M:%S GMT")
+            return datetime.datetime.strftime(obj, "%a, %d %b %Y %H:%M:%S GMT")
         elif isinstance(obj, (datetime.time, datetime.date)):
             # should not happen since the only supported
             # date-like format is 'datetime' .
