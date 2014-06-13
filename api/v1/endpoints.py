@@ -11,6 +11,7 @@ from .helpers import rule_link
 import thousand
 import ureport
 import mvrs
+import eum
 
 
 @api.route('/', methods=['GET'])
