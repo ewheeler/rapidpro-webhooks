@@ -16,8 +16,8 @@ from werkzeug.exceptions import HTTPException
 
 # flask extensions
 # from raven.contrib.flask import Sentry
-#from flask_debugtoolbar import DebugToolbarExtension
-from flask.ext.rq import RQ
+# from flask_debugtoolbar import DebugToolbarExtension
+# from flask.ext.rq import RQ
 
 
 __all__ = ['make_json_app']
@@ -65,7 +65,7 @@ app._logger = logging.getLogger('rpwebhooks')
 app.logger_name = 'rpwebhooks'
 app.wsgi_app = ProxyFix(app.wsgi_app)
 #toolbar = DebugToolbarExtension(app)
-RQ(app)
+#RQ(app)
 
 
 # http://flask.pocoo.org/docs/blueprints/
@@ -93,23 +93,6 @@ for app_attr, cmd_str in app.env_attrs.items():
         setattr(app, app_attr, cmd_result.rstrip())
 
 
-def is_printable(s):
-    """ jinja2 test to determine whether a string can be printed
-        by a template without error.
-    """
-    try:
-        s.decode('utf-8')
-        return True
-    except UnicodeDecodeError:
-        return False
-    except UnicodeEncodeError:
-        return False
-    except AttributeError:
-        return True
-
-app.jinja_env.tests['printable'] = is_printable
-
-
 def copyright():
     now = datetime.datetime.now()
     return "&copy; %s %s" % (now.year, app.config['PRODUCT_NAME'])
@@ -117,4 +100,14 @@ def copyright():
 app.jinja_env.globals['copyright'] = copyright
 
 if __name__ == '__main__':
+    if app.debug is not True:
+        import logging
+        from logging.handlers import RotatingFileHandler
+        file_handler = RotatingFileHandler('/var/log/webhooks/errors.log',
+                                           maxBytes=1024 * 1024 * 100,
+                                           backupCount=20)
+        file_handler.setLevel(logging.ERROR)
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        file_handler.setFormatter(formatter)
+        app.logger.addHandler(file_handler)
     app.run(port=5050)
