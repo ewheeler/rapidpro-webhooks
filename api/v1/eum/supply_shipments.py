@@ -36,7 +36,11 @@ def get_or_create_shipments_doc(phone=None):
 @api.route('/eum/shipments', methods=['POST'])
 @limit(max_requests=10, period=60, by="ip")
 def expected_shipments_for_contact():
-    data = request.json
+    if request.json is not None:
+        data = request.json
+    else:
+        data = request.values
+
     if data:
         phone = data.get('phone')
         if phone:
@@ -53,7 +57,11 @@ def expected_shipments_for_contact():
 @api.route('/eum/shipment-received', methods=['POST'])
 @limit(max_requests=10, period=60, by="ip")
 def shipment_received():
-    data = request.json
+    if request.json is not None:
+        data = request.json
+    else:
+        data = request.values
+
     if data:
         phone = data.get('phone')
         values = data.get('values')
@@ -79,7 +87,10 @@ def shipment_received():
 @api.route('/eum/update-shipment', methods=['POST'])
 @limit(max_requests=10, period=60, by="ip")
 def update_shipment():
-    data = request.json
+    if request.json is not None:
+        data = request.json
+    else:
+        data = request.values
     if data:
         # TODO
         pass
