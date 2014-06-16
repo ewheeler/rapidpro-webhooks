@@ -1,14 +1,36 @@
 import datetime
+import random
 
 from ..api import api  # Circular, but safe
 
 from flask import request
 from flask import abort
 from flask import g
+import couchdbkit
 
 from ..decorators import limit
 from ..helpers import rule_link
 from ..helpers import create_response
+
+
+demo_commodities = ['bednets', 'ors', 'plumpynut', 'textbooks']
+demo_vendors = ['Acme', 'Parner Org.', 'Local NGO']
+
+
+def get_or_create_shipments_doc(phone=None):
+    assert phone is not None
+    try:
+        shipments_doc = g.db.open_doc('shipments-%s' % phone)
+    except couchdbkit.ResourceNotFound:
+        shipments = {'amount': random.randrange(100, 20000),
+                     'commodity': random.choice(demo_commodities),
+                     'vendor': random.choice(demo_vendors),
+                     'expected': (datetime.datetime.utcnow().date() +
+                     datetime.timedelta(days=random.randrange(3, 180))).isoformat()}
+
+        shipments_doc = {'_id': 'shipments-%s' % phone, 'shipments': [shipments]}
+        g.db.save_doc(shipments_doc)
+        return shipments_doc
 
 
 @api.route('/eum/shipments', methods=['POST'])
@@ -18,11 +40,10 @@ def expected_shipments_for_contact():
     if data:
         phone = data.get('phone')
         if phone:
+            shipments_doc = get_or_create_shipments_doc(phone)
             shipments_doc = g.db.open_doc('shipments-%s' % phone)
             shipments = shipments_doc.get('shipments')
             if shipments:
-                # TODO should not have to eval this!!
-                shipments = eval(shipments)
 
                 return create_response({'shipment': shipments.pop(),
                                         '_links': {'self': rule_link(request.url_rule)}})
