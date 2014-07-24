@@ -110,4 +110,4 @@ if __name__ == '__main__':
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         file_handler.setFormatter(formatter)
         app.logger.addHandler(file_handler)
-    app.run(port=5050)
+    app.run(host=app.config['SERVER_NAME'], port=5050)
