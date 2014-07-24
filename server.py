@@ -6,6 +6,7 @@ import subprocess
 import shlex
 import logging
 import datetime
+import os
 
 # python packages
 from flask import Flask
@@ -18,6 +19,7 @@ from werkzeug.exceptions import HTTPException
 # from raven.contrib.flask import Sentry
 # from flask_debugtoolbar import DebugToolbarExtension
 # from flask.ext.rq import RQ
+from ui import ui
 
 
 __all__ = ['make_json_app']
@@ -47,8 +49,8 @@ def make_json_app(import_name, **kwargs):
         app.error_handler_spec[None][code] = make_json_error
 
     return app
-
-app = make_json_app('webhooks')
+tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+app = make_json_app('webhooks', template_folder=tmpl_dir)
 
 # http://flask.pocoo.org/docs/config/
 # load base config
@@ -71,6 +73,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 # http://flask.pocoo.org/docs/blueprints/
 from api.v1 import api
 app.register_blueprint(api, url_prefix='/api/v1')
+app.register_blueprint(ui, url_prefix='/ui')
 
 # collect some code and environment info so it can be logged
 app.env_attrs = {
