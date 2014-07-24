@@ -11,10 +11,20 @@ import couchdbkit
 from ..decorators import limit
 from ..helpers import rule_link
 from ..helpers import create_response
+from ..helpers import only_digits
 
 
 demo_commodities = ['bednets', 'ors', 'plumpynut', 'textbooks']
 demo_vendors = ['Acme', 'Parner Org.', 'Local NGO']
+
+
+def _format_phone(phone):
+    """ expects E164 msisdn, returns without leading + """
+    assert phone is not None
+    # TODO rapidpro will send E164, but this should ensure E164 so
+    # other callers can be easily supported
+    # return only_digits(phone)
+    pass
 
 
 def get_or_create_shipments_doc(phone=None):
@@ -42,7 +52,7 @@ def expected_shipments_for_contact():
         data = request.values
 
     if data:
-        phone = data.get('phone')
+        phone = _format_phone(data.get('phone'))
         if phone:
             shipments_doc = get_or_create_shipments_doc(phone)
             shipments_doc = g.db.open_doc('shipments-%s' % phone)
@@ -63,17 +73,22 @@ def shipment_received():
         data = request.values
 
     if data:
-        phone = data.get('phone')
+        phone = _format_phone(data.get('phone'))
         values = data.get('values')
         if phone:
             shipments_doc = g.db.open_doc('shipments-%s' % phone)
             shipments_received = shipments_doc.get('shipments-received', [])
             if shipments_received:
                 shipment_data = {}
-                shipment_data.update({'commodity': values['commodity']})
-                shipment_data.update({'amount': values['amount']})
-                shipment_data.update({'date_reported': datetime.datetime.utcnow()})
-                shipment_data.update({'date_received': values['date_received']})
+                for value in values:
+                    if value['label'] == 'Receipt of commodity':
+                        shipment_data.update({'received': value['value']})
+                    if value['label'] == 'Date received':
+                        shipment_data.update({'date_received': value['value']})
+                    if value['label'] == 'Amount received':
+                        shipment_data.update({'amount': value['value']})
+                    if value['label'] == 'Shipment Condition':
+                        shipment_data.update({'condition': value['value']})
 
                 shipments_received.append(shipment_data)
                 shipments_doc.update({'shipments-received': shipments_received})
