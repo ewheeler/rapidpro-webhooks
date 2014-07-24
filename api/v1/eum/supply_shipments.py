@@ -43,6 +43,7 @@ def get_or_create_shipments_doc(phone=None):
         shipments_doc = g.db.open_doc('shipments-%s' % phone)
         shipments = shipments_doc.get('shipments', [])
         shipments_received = shipments_doc.get('shipments-received', [])
+        # TODO actually check for an outstanding shipment
         if len(shipments) == len(shipments_received):
             shipments.append(_generate_shipment(phone))
             shipments_doc.update({'shipments': shipments})
