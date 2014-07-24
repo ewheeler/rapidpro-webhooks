@@ -23,8 +23,7 @@ def _format_phone(phone):
     assert phone is not None
     # TODO rapidpro will send E164, but this should ensure E164 so
     # other callers can be easily supported
-    # return only_digits(phone)
-    pass
+    return phone
 
 
 def get_or_create_shipments_doc(phone=None):
