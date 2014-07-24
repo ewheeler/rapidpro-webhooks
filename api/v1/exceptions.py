@@ -26,3 +26,7 @@ class RateLimitError(APIError):
         self.field = field
         self.message = message
         self.resource = resource
+
+
+class ImproperlyConfigured(RuntimeError):
+    pass
