@@ -44,8 +44,8 @@ def get_or_create_shipments_doc(phone=None):
         shipments = shipments_doc.get('shipments', [])
         shipments_received = shipments_doc.get('shipments-received', [])
         if len(shipments) == len(shipments_received):
-            shipments_doc.update({'shipments':
-                                  shipments.append(_generate_shipment(phone))})
+            shipments.append(_generate_shipment(phone))
+            shipments_doc.update({'shipments': shipments})
             g.db.save_doc(shipments_doc)
     except couchdbkit.ResourceNotFound:
         shipments_doc = _generate_shipment()
