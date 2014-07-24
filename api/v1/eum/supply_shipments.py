@@ -27,7 +27,8 @@ def _format_phone(phone):
     return phone
 
 
-def _generate_shipment():
+def _generate_shipment(phone=None):
+    assert phone is not None
     shipments = {'amount': random.randrange(100, 20000),
                  'commodity': random.choice(demo_commodities),
                  'vendor': random.choice(demo_vendors),
@@ -45,7 +46,7 @@ def get_or_create_shipments_doc(phone=None):
         shipments_doc = g.db.open_doc('shipments-%s' % phone)
         shipments_received = shipments_doc.get('shipments-received', [])
         if shipments_received:
-            shipments_doc = _generate_shipment()
+            shipments_doc = _generate_shipment(phone)
     except couchdbkit.ResourceNotFound:
         shipments_doc = _generate_shipment()
     return shipments_doc
