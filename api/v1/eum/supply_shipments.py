@@ -1,5 +1,6 @@
 import datetime
 import random
+import json
 
 from ..api import api  # Circular, but safe
 
@@ -26,20 +27,28 @@ def _format_phone(phone):
     return phone
 
 
+def _generate_shipment():
+    shipments = {'amount': random.randrange(100, 20000),
+                 'commodity': random.choice(demo_commodities),
+                 'vendor': random.choice(demo_vendors),
+                 'expected': (datetime.datetime.utcnow().date() +
+                 datetime.timedelta(days=random.randrange(3, 180))).isoformat()}
+
+    shipments_doc = {'_id': 'shipments-%s' % phone, 'shipments': [shipments]}
+    g.db.save_doc(shipments_doc)
+    return shipments_doc
+
+
 def get_or_create_shipments_doc(phone=None):
     assert phone is not None
     try:
         shipments_doc = g.db.open_doc('shipments-%s' % phone)
+        shipments_received = shipments_doc.get('shipments-received', [])
+        if shipments_received:
+            shipments_doc = _generate_shipment()
     except couchdbkit.ResourceNotFound:
-        shipments = {'amount': random.randrange(100, 20000),
-                     'commodity': random.choice(demo_commodities),
-                     'vendor': random.choice(demo_vendors),
-                     'expected': (datetime.datetime.utcnow().date() +
-                     datetime.timedelta(days=random.randrange(3, 180))).isoformat()}
-
-        shipments_doc = {'_id': 'shipments-%s' % phone, 'shipments': [shipments]}
-        g.db.save_doc(shipments_doc)
-        return shipments_doc
+        shipments_doc = _generate_shipment()
+    return shipments_doc
 
 
 @api.route('/eum/shipments', methods=['POST'])
@@ -57,7 +66,6 @@ def expected_shipments_for_contact():
             shipments_doc = g.db.open_doc('shipments-%s' % phone)
             shipments = shipments_doc.get('shipments')
             if shipments:
-
                 return create_response({'shipment': shipments.pop(),
                                         '_links': {'self': rule_link(request.url_rule)}})
     abort(400)
@@ -73,28 +81,28 @@ def shipment_received():
 
     if data:
         phone = _format_phone(data.get('phone'))
-        values = data.get('values')
+        values_str = data.get('values')
+        values = json.loads(values_str)
         if phone:
             shipments_doc = g.db.open_doc('shipments-%s' % phone)
             shipments_received = shipments_doc.get('shipments-received', [])
-            if shipments_received:
-                shipment_data = {}
-                for value in values:
-                    if value['label'] == 'Receipt of commodity':
-                        shipment_data.update({'received': value['value']})
-                    if value['label'] == 'Date received':
-                        shipment_data.update({'date_received': value['value']})
-                    if value['label'] == 'Amount received':
-                        shipment_data.update({'amount': value['value']})
-                    if value['label'] == 'Shipment Condition':
-                        shipment_data.update({'condition': value['value']})
+            shipment_data = {}
+            for value in values:
+                if value['label'] == 'Receipt of commodity':
+                    shipment_data.update({'received': value['value']})
+                if value['label'] == 'Date received':
+                    shipment_data.update({'date_received': value['value']})
+                if value['label'] == 'Amount received':
+                    shipment_data.update({'amount': value['value']})
+                if value['label'] == 'Shipment Condition':
+                    shipment_data.update({'condition': value['value']})
 
-                shipments_received.append(shipment_data)
-                shipments_doc.update({'shipments-received': shipments_received})
-                g.db.save_doc(shipments_doc)
+            shipments_received.append(shipment_data)
+            shipments_doc.update({'shipments-received': shipments_received})
+            g.db.save_doc(shipments_doc)
 
-                return create_response({'shipment': shipment_data,
-                                        '_links': {'self': rule_link(request.url_rule)}})
+            return create_response({'shipment': shipment_data,
+                                    '_links': {'self': rule_link(request.url_rule)}})
     abort(400)
 
 
