@@ -1,4 +1,6 @@
 import operator
+import re
+import socket
 
 from flask import url_for
 from flask import request
@@ -90,3 +92,55 @@ def rule_link(url_rule):
     return {"title": url_rule.endpoint.split('.')[-1],
             "href": url_for(url_rule.endpoint, _external=True),
             "methods": list(url_rule.methods)}
+
+
+def only_digits(text):
+    result = ""
+    if isinstance(text, basestring):
+        result = re.sub("\D", "", text)
+    return result
+
+
+# this linked regex will actually validated all valid address based on RFC 822
+# http://www.ex-parrot.com/~pdw/Mail-RFC822-Address.html
+# however this is crazy...
+# instead, the following regex will match most of them
+# from http://code.activestate.com/recipes/66439-stringvalidator/?in=user-114221#c14
+# matches "Bob_O'Reilly+tag@example.com" and "a@b.dk"
+# but not "foobar@dk" (which a valid, working address)
+_email_pat = re.compile("^[^\s]+@[^\s]+\.[^\s]{2,3}$")
+
+
+def is_possible_email(email_str):
+    if not isinstance(email_str, basestring):
+        return False
+    email_str = email_str.strip()
+    if _email_pat.search(email_str) is None:
+        return False
+    return True
+
+
+# asking socket to validate an ip address
+# is allegedly faster than using a regex
+# http://www.seanelavelle.com/2012/04/16/checking-for-a-valid-ip-in-python/
+def is_valid_ipv4_address(address):
+    try:
+        addr = socket.inet_pton(socket.AF_INET, address)
+    except AttributeError:  # no inet_pton here, sorry
+        try:
+            addr = socket.inet_aton(address)
+        except socket.error:
+            return False
+        return address.count('.') == 3
+    except socket.error:  # not a valid address
+        return False
+
+    return True
+
+
+def is_valid_ipv6_address(address):
+    try:
+        addr = socket.inet_pton(socket.AF_INET6, address)
+    except socket.error:  # not a valid address
+        return False
+    return True
