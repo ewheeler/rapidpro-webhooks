@@ -58,6 +58,8 @@ def _update_shipment_status(request, labels):
                     shipment_data.update({slugify(value['label']):
                                           value['value']})
 
+            shipment_data.update({'rapidpro_data': data})
+
             shipments_status.append(shipment_data)
             shipments_doc.update({'shipments-status': shipments_status})
             g.db.save_doc(shipments_doc)
