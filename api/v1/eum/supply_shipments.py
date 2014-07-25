@@ -42,9 +42,9 @@ def _update_shipment_status(request, labels):
     if request.json is not None:
         data = request.json
     else:
-        data = request.values
-        data = {k: json.loads(v) for k, v in dict(request.values).iteritems()
-                if k in ['values', 'steps']}
+        data = request.values.to_dict()
+        data.update({k: json.loads(v) for k, v in data.iteritems()
+                     if k in ['values', 'steps']})
     if data:
         phone = _format_phone(data.get('phone'))
 
