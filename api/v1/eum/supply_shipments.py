@@ -79,7 +79,7 @@ def get_or_create_shipments_doc(phone=None):
             shipments_doc.update({'shipments': shipments})
             g.db.save_doc(shipments_doc)
     except couchdbkit.ResourceNotFound:
-        shipments_doc = _generate_shipment()
+        shipments_doc = _generate_shipment(phone)
     return shipments_doc
 
 
