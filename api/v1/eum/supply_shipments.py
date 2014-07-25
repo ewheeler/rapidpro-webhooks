@@ -12,7 +12,7 @@ import couchdbkit
 from ..decorators import limit
 from ..helpers import rule_link
 from ..helpers import create_response
-from ..helpers import only_digits
+from ..helpers import slugify
 
 
 demo_commodities = ['bednets', 'ors', 'plumpynut', 'textbooks']
@@ -33,8 +33,35 @@ def _generate_shipment(phone=None):
                 'commodity': random.choice(demo_commodities),
                 'vendor': random.choice(demo_vendors),
                 'expected': (datetime.datetime.utcnow().date() +
-                datetime.timedelta(days=random.randrange(3, 180))).isoformat()}
+                             datetime.timedelta(days=random.randrange(3, 180)))
+                             .isoformat()}
     return shipment
+
+
+def _update_shipment_status(request, labels):
+    if request.json is not None:
+        data = request.json
+    else:
+        data = request.values
+    if data:
+        phone = _format_phone(data.get('phone'))
+
+        values_str = data.get('values')
+        values = json.loads(values_str)
+
+        if phone:
+            shipments_doc = g.db.open_doc('shipments-%s' % phone)
+            shipments_status = shipments_doc.get('shipments-status', [])
+            shipment_data = {}
+            for value in values:
+                if value['label'].upper() in labels:
+                    shipment_data.update({slugify(value['label']):
+                                          value['value']})
+
+            shipments_status.append(shipment_data)
+            shipments_doc.update({'shipments-status': shipments_status})
+            g.db.save_doc(shipments_doc)
+            return shipment_data
 
 
 def get_or_create_shipments_doc(phone=None):
@@ -42,9 +69,9 @@ def get_or_create_shipments_doc(phone=None):
     try:
         shipments_doc = g.db.open_doc('shipments-%s' % phone)
         shipments = shipments_doc.get('shipments', [])
-        shipments_received = shipments_doc.get('shipments-received', [])
+        shipments_status = shipments_doc.get('shipments-status', [])
         # TODO actually check for an outstanding shipment
-        if len(shipments) == len(shipments_received):
+        if (shipments_status is None) or (len(shipments) == len(shipments_status)):
             shipments.append(_generate_shipment(phone))
             shipments_doc.update({'shipments': shipments})
             g.db.save_doc(shipments_doc)
@@ -73,48 +100,34 @@ def expected_shipments_for_contact():
     abort(400)
 
 
+SHIPMENT_RECEIVED_FIELDS = ['RECEIPT OF COMMODITY', 'DATE RECEIVED',
+                            'AMOUNT RECEIVED', 'SHIPMENT CONDITION']
+
+
 @api.route('/eum/shipment-received', methods=['POST'])
 @limit(max_requests=10, period=60, by="ip")
 def shipment_received():
-    if request.json is not None:
-        data = request.json
-    else:
-        data = request.values
-
-    if data:
-        phone = _format_phone(data.get('phone'))
-        values_str = data.get('values')
-        values = json.loads(values_str)
-        if phone:
-            shipments_doc = g.db.open_doc('shipments-%s' % phone)
-            shipments_received = shipments_doc.get('shipments-received', [])
-            shipment_data = {}
-            for value in values:
-                if value['label'] == 'Receipt of commodity':
-                    shipment_data.update({'received': value['value']})
-                if value['label'] == 'Date received':
-                    shipment_data.update({'date_received': value['value']})
-                if value['label'] == 'Amount received':
-                    shipment_data.update({'amount': value['value']})
-                if value['label'] == 'Shipment Condition':
-                    shipment_data.update({'condition': value['value']})
-
-            shipments_received.append(shipment_data)
-            shipments_doc.update({'shipments-received': shipments_received})
-            g.db.save_doc(shipments_doc)
-
-            return create_response({'shipment': shipment_data,
-                                    '_links': {'self': rule_link(request.url_rule)}})
+    """ Called when shipment has been received by end user """
+    shipment = _update_shipment_status(request, SHIPMENT_RECEIVED_FIELDS)
+    if shipment:
+        return create_response({'shipment': shipment,
+                                '_links': {'self':
+                                           rule_link(request.url_rule)}})
     abort(400)
+
+
+SHIPMENT_UPDATE_FIELDS = ['RECEIPT OF COMMODITY', 'INFORMED OF DELAY',
+                          'REVISED DATE ESTIMATE']
 
 
 @api.route('/eum/update-shipment', methods=['POST'])
 @limit(max_requests=10, period=60, by="ip")
 def update_shipment():
-    if request.json is not None:
-        data = request.json
-    else:
-        data = request.values
-    if data:
-        # TODO
-        pass
+    """ Called when shipment status is updated by end user """
+    shipment = _update_shipment_status(request, SHIPMENT_UPDATE_FIELDS)
+
+    if shipment:
+        return create_response({'shipment': shipment,
+                                '_links': {'self':
+                                           rule_link(request.url_rule)}})
+    abort(400)
