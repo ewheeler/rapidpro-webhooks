@@ -43,11 +43,12 @@ def _update_shipment_status(request, labels):
         data = request.json
     else:
         data = request.values
+        data = {k: json.loads(v) for k, v in dict(request.values).iteritems()
+                if k in ['values', 'steps']}
     if data:
         phone = _format_phone(data.get('phone'))
 
-        values_str = data.get('values')
-        values = json.loads(values_str)
+        values = data.get('values')
 
         if phone:
             shipments_doc = g.db.open_doc('shipments-%s' % phone)
