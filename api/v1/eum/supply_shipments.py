@@ -59,7 +59,7 @@ def _update_shipment_status(request, labels):
                     shipment_data.update({slugify(value['label']):
                                           value['value']})
 
-            shipment_data.update({'rapidpro_data': data})
+            shipment_data.update({'webhook_data': data})
 
             shipments_status.append(shipment_data)
             shipments_doc.update({'shipments-status': shipments_status})
@@ -131,6 +131,9 @@ SHIPMENT_UPDATE_FIELDS = ['RECEIPT OF COMMODITY', 'INFORMED OF DELAY',
 def update_shipment():
     """ Called when shipment status is updated by end user """
     shipment = _update_shipment_status(request, SHIPMENT_UPDATE_FIELDS)
+
+    # TODO if we have a revised date estimate,
+    # then schedule flow for after revised date
 
     if shipment:
         return create_response({'shipment': shipment,
