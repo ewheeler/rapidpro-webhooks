@@ -75,7 +75,7 @@ def nomenklatura():
                                     '_links': {'self': rule_link(request.url_rule)}})
         else:
             return create_response({'message': 'Thanks, we have recorded your %s as %s' % (data['type'], match[0]['name']),
-                                    'match': match[0],
+                                    'match': match[0]['name'],
                                     '_links': {'self': rule_link(request.url_rule)}})
 
     abort(400)
