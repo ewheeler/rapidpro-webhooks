@@ -54,7 +54,7 @@ def nominatum():
 
 
 @api.route('/nomenklatura/reconcile', methods=['GET', 'POST'])
-@limit(max_requests=10, period=60, by="ip")
+@limit(max_requests=1000, period=60, by="ip")
 def nomenklatura():
     # TODO better logging
     log = dict()
