@@ -12,6 +12,7 @@ import thousand
 import ureport
 import mvrs
 import eum
+import places
 
 
 @api.route('/', methods=['GET'])
