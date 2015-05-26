@@ -14,7 +14,7 @@ NOMENKLATURA_URL = "http://nomenklatura.uniceflabs.org/api/2/reconcile"
 NOMENKLATURA_API_KEY = "er6ey12q06e63cxti91q4alpo"
 
 
-@api.route('/nominatum/reconcile', methods=['POST'])
+@api.route('/nominatum/reconcile', methods=['GET', 'POST'])
 @limit(max_requests=10, period=60, by="ip")
 def nominatum():
     if request.json is not None:
@@ -43,7 +43,7 @@ def nominatum():
     abort(400)
 
 
-@api.route('/nomenklatura/reconcile', methods=['POST'])
+@api.route('/nomenklatura/reconcile', methods=['GET', 'POST'])
 @limit(max_requests=10, period=60, by="ip")
 def nomenklatura():
     if request.json is not None:
