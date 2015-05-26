@@ -69,13 +69,14 @@ def nomenklatura():
             else:
                 if match['score'] >= 75:
                     matches.append(match)
+        print matches
         if len(matches) < 1:
             return create_response({'message': 'Sorry. You have entered an invalid %s' % data['type'],
                                     'match': None,
                                     '_links': {'self': rule_link(request.url_rule)}})
         else:
-            return create_response({'message': 'Thanks, we have recorded your %s as %s' % (data['type'], match[0]['name']),
-                                    'match': match[0]['name'],
+            return create_response({'message': 'Thanks, we have recorded your %s as %s' % (data['type'], matches[0]['name']),
+                                    'match': matches[0]['name'],
                                     '_links': {'self': rule_link(request.url_rule)}})
 
     abort(400)
