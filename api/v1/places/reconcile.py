@@ -52,7 +52,7 @@ def nominatum():
     abort(400)
 
 
-def _localized_success(lang=None):
+def _localized_fail(lang=None):
     # TODO
     if lang.lower() == 'eng':
         return 'Sorry. You have entered an invalid %s'
@@ -60,7 +60,7 @@ def _localized_success(lang=None):
         return 'Tapaile lekhnubhayeko %s milena'
 
 
-def _localized_fail(lang=None):
+def _localized_success(lang=None):
     # TODO
     if lang.lower() == 'eng':
         return 'Thanks, we have recorded your %(loc_type)s as %(match)s'
@@ -114,7 +114,7 @@ def nomenklatura():
                                     'match': None,
                                     '_links': {'self': rule_link(request.url_rule)}})
         else:
-            return create_response({'message': _localized_fail(data.get('lang', 'nep')) % {'loc_type': data['type'], 'match': matches[0]['name']},
+            return create_response({'message': _localized_success(data.get('lang', 'nep')) % {'loc_type': data['type'], 'match': matches[0]['name']},
                                     'match': matches[0]['name'],
                                     '_links': {'self': rule_link(request.url_rule)}})
 
