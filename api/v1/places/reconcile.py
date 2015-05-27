@@ -102,7 +102,7 @@ def nomenklatura():
             else:
                 # TODO analyze logs so we can see
                 # if 75 is a resonable threshold
-                if match['score'] >= 75:
+                if match['score'] >= 50:
                     matches.append(match)
 
         log.update({'nomenklatura_response': results})
