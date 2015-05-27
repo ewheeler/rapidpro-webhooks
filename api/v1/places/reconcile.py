@@ -3,7 +3,6 @@ from ..api import api  # Circular, but safe
 from flask import request
 from flask import abort
 from flask import g
-import couchdbkit
 import requests
 
 from ..decorators import limit
@@ -53,11 +52,28 @@ def nominatum():
     abort(400)
 
 
+def _localized_success(lang=None):
+    # TODO
+    if lang.lower() == 'eng':
+        return 'Sorry. You have entered an invalid %s'
+    if lang.lower() == 'nep':
+        return 'Tapaile lekhnubhayeko %s milena'
+
+
+def _localized_fail(lang=None):
+    # TODO
+    if lang.lower() == 'eng':
+        return 'Thanks, we have recorded your %(loc_type)s as %(match)s'
+    if lang.lower() == 'nep':
+        return 'Tapaile lekhnubhayeko %(loc_type)s lai %(match)s bhane record gariyo'
+
+
 @api.route('/nomenklatura/reconcile', methods=['GET', 'POST'])
 @limit(max_requests=1000, period=60, by="ip")
 def nomenklatura():
     # TODO better logging
     log = dict()
+
     if request.json is not None:
         data = request.json
     else:
@@ -83,7 +99,7 @@ def nomenklatura():
             if match['match'] is True:
                 matches.append(match)
             else:
-                # TODO log all these matches so we can see
+                # TODO analyze logs so we can see
                 # if 75 is a resonable threshold
                 if match['score'] >= 75:
                     matches.append(match)
@@ -93,13 +109,11 @@ def nomenklatura():
         g.db.save_doc(log)
 
         if len(matches) < 1:
-            # TODO send contact's preferred language in request
-            # so that these messages can be localized
-            return create_response({'message': 'Sorry. You have entered an invalid %s' % data['type'],
+            return create_response({'message': _localized_fail(data.get('lang', 'nep')) % data['type'],
                                     'match': None,
                                     '_links': {'self': rule_link(request.url_rule)}})
         else:
-            return create_response({'message': 'Thanks, we have recorded your %s as %s' % (data['type'], matches[0]['name']),
+            return create_response({'message': _localized_fail(data.get('lang', 'nep')) % {'loc_type': data['type'], 'match': matches[0]['name']},
                                     'match': matches[0]['name'],
                                     '_links': {'self': rule_link(request.url_rule)}})
 
