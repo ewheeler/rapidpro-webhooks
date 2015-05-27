@@ -84,7 +84,8 @@ def nomenklatura():
         log.update({'request_data': data.to_dict()})
 
         payload = {'format': 'json'}
-        payload['query'] = data['query']
+        # titlecase the query for better chance of exact match
+        payload['query'] = data['query'].title()
         payload['api_key'] = NOMENKLATURA_API_KEY
 
         if data.get('type'):
