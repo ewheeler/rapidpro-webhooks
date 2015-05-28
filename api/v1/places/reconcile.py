@@ -79,7 +79,9 @@ def _format_type(loc_type):
 def _clean_query(query):
     exclude = set(['DISTRICT', 'VDC', 'MUNICIPALITY', 'GABISA', 'NAGARPALIKA', 'JILLA'])
     query_words = set(query.upper().split())
-    return ' '.join(query_words.difference(exclude))
+    cleaned = query_words.difference(exclude)
+    # only try to match against the first three words
+    return ' '.join(cleaned[:3])
 
 
 @api.route('/nomenklatura/reconcile', methods=['GET', 'POST'])
@@ -105,7 +107,7 @@ def nomenklatura():
 
         payload = {'format': 'json'}
         # titlecase the query for better chance of exact match
-        payload['query'] = _clean_query(data['query'].title())
+        payload['query'] = _clean_query(data['query']).title()
         payload['api_key'] = NOMENKLATURA_API_KEY
 
         if data.get('type'):
