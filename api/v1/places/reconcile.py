@@ -81,7 +81,7 @@ def _clean_query(query):
     query_words = set(query.upper().split())
     cleaned = query_words.difference(exclude)
     # only try to match against the first three words
-    return ' '.join(cleaned[:3])
+    return ' '.join(cleaned[:2])
 
 
 @api.route('/nomenklatura/reconcile', methods=['GET', 'POST'])
