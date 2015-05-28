@@ -81,7 +81,13 @@ def nomenklatura():
 
 
     if data:
-        log.update({'request_data': data.to_dict()})
+        try:
+            # `data` is likely werkzeug's ImmutableDict inside a CombinedMultiDict
+            # so try to cast with `to_dict`
+            log.update({'request_data': data.to_dict()})
+        except AttributeError:
+            # `data` can also be a vanilla dict
+            log.update({'request_data': data})
 
         payload = {'format': 'json'}
         # titlecase the query for better chance of exact match
