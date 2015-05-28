@@ -1,3 +1,5 @@
+import datetime
+
 from ..api import api  # Circular, but safe
 
 from flask import request
@@ -79,7 +81,7 @@ def _format_type(loc_type):
 @limit(max_requests=1000, period=60, by="ip")
 def nomenklatura():
     # TODO better logging
-    log = dict()
+    log = dict({'timestamp': datetime.datetime.utcnow().isoformat()})
 
     if request.json is not None:
         data = request.json
