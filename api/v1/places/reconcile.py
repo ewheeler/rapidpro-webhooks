@@ -111,7 +111,7 @@ def nomenklatura():
         payload['api_key'] = NOMENKLATURA_API_KEY
 
         if data.get('type'):
-            payload['type'] = data['type'].title()
+            payload['type'] = data['type']
 
         log.update({'nomenklatura_payload': payload})
         result = requests.get(NOMENKLATURA_URL, params=payload)
