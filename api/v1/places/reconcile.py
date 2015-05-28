@@ -68,6 +68,13 @@ def _localized_success(lang=None):
         return 'Tapaile lekhnubhayeko %(loc_type)s lai %(match)s bhani record gariyo'
 
 
+def _format_type(loc_type):
+    if loc_type.lower() == 'vdc':
+        return 'VDC/Municipality'
+    else:
+        return 'District'
+
+
 @api.route('/nomenklatura/reconcile', methods=['GET', 'POST'])
 @limit(max_requests=1000, period=60, by="ip")
 def nomenklatura():
@@ -116,11 +123,11 @@ def nomenklatura():
         g.db.save_doc(log)
 
         if len(matches) < 1:
-            return create_response({'message': _localized_fail(data.get('lang', 'nep')) % data['type'],
+            return create_response({'message': _localized_fail(data.get('lang', 'nep')) % _format_type(data['type']),
                                     'match': None,
                                     '_links': {'self': rule_link(request.url_rule)}})
         else:
-            return create_response({'message': _localized_success(data.get('lang', 'nep')) % {'loc_type': data['type'], 'match': matches[0]['name']},
+            return create_response({'message': _localized_success(data.get('lang', 'nep')) % {'loc_type': _format_type(data['type']), 'match': matches[0]['name']},
                                     'match': matches[0]['name'],
                                     '_links': {'self': rule_link(request.url_rule)}})
 
