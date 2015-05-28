@@ -63,7 +63,7 @@ def _localized_fail(lang=None):
 def _localized_success(lang=None):
     # TODO
     if lang.lower() == 'eng':
-        return 'Thanks, we have recorded your %(loc_type)s as %(match)s'
+        return 'We have recorded your %(loc_type)s as %(match)s'
     if lang.lower() == 'nep':
         return 'Tapaile lekhnubhayeko %(loc_type)s lai %(match)s bhani record gariyo'
 
