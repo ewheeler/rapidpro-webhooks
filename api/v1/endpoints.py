@@ -31,3 +31,7 @@ def list_resources():
     return create_response({'_links': {
                             'self': rule_link(request.url_rule),
                             'child': children}})
+
+@api.route('/fail', methods=['GET', 'POST'])
+def fail():
+    return create_response({'lolz': 1 / 0})
