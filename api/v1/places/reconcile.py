@@ -76,8 +76,9 @@ def _format_type(loc_type):
     else:
         return 'District'
 
+
 def _clean_query(query):
-    exclude = set(['DISTRICT', 'VDC', 'MUNICIPALITY', 'GABISA', 'NAGARPALIKA', 'JILLA'])
+    exclude = set(['DISTRICT', 'VDC', 'MUNICIPALITY', 'CITY', 'TOWN', 'GABISA', 'NAGARPALIKA', 'JILLA'])
     query_words = set(query.upper().split())
     cleaned = query_words.difference(exclude)
     # only try to match against the first three words
@@ -95,7 +96,6 @@ def nomenklatura():
     else:
         data = request.values
 
-
     if data:
         try:
             # `data` is likely werkzeug's ImmutableDict inside a CombinedMultiDict
@@ -111,6 +111,7 @@ def nomenklatura():
         payload['api_key'] = NOMENKLATURA_API_KEY
 
         if data.get('type'):
+            assert data['type'] in ['VDC', 'District']
             payload['type'] = data['type']
 
         log.update({'nomenklatura_payload': payload})
