@@ -11,6 +11,7 @@ import os
 # python packages
 from flask import Flask
 from flask import jsonify
+from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.exceptions import default_exceptions
 from werkzeug.exceptions import HTTPException
@@ -62,6 +63,9 @@ app.config.from_envvar('RPWEBHOOKS_SETTINGS')
 app.config.update(
     PRODUCT_NAME='rpwebhooks',
 )
+
+db = SQLAlchemy(app)
+
 app.url_map.strict_slashes = False
 app._logger = logging.getLogger('rpwebhooks')
 app.logger_name = 'rpwebhooks'
