@@ -11,3 +11,4 @@ unidecode
 Flask-SQLAlchemy
 psycopg2
 python-stdnum
+nose

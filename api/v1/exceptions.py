@@ -30,3 +30,7 @@ class RateLimitError(APIError):
 
 class ImproperlyConfigured(RuntimeError):
     pass
+
+
+class VoucherException(LookupError):
+    pass

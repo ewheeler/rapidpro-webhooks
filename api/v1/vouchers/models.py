@@ -1,16 +1,16 @@
 import random
 from datetime import datetime
+from flask.ext.sqlalchemy import SQLAlchemy
+
 from stdnum import verhoeff
-from server import db
+
+from ..exceptions import VoucherException
+db = SQLAlchemy()
 
 __author__ = 'kenneth'
 
 
-class VoucherException(LookupError):
-    pass
-
-
-class Voucher(db.Models):
+class Voucher(db.Model):
     __tablename__ = 'voucher_vouchers'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -20,14 +20,18 @@ class Voucher(db.Models):
     modified_on = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), server_onupdate=db.func.now())
     redeemed_by = db.Column(db.String(13), nullable=True)
 
+    def __init__(self, code):
+        self.code = code
+
     def __repr__(self):
         return self.code
 
     @classmethod
     def create(cls):
-        voucher = cls(cls.generate_code())
+        voucher = cls(code=cls.generate_code())
         db.session.add(voucher)
         db.session.commit()
+        return voucher
 
     @classmethod
     def redeem(cls, code, phone):
@@ -50,4 +54,4 @@ class Voucher(db.Models):
     def generate_code(cls):
         _code = cls._random()
         check_digit = verhoeff.calc_check_digit(_code)
-        return "%d%d" % (_code, check_digit)
+        return "%s%s" % (str(_code), str(check_digit))
