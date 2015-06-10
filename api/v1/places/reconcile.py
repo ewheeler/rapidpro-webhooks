@@ -71,7 +71,7 @@ def _localized_success(lang=None):
 
 
 def _format_type(loc_type):
-    if loc_type.lower() == 'vdc':
+    if loc_type.lower() in ['vdc', 'nepal-vdcs']:
         return 'VDC/Municipality'
     else:
         return 'District'
@@ -90,6 +90,10 @@ def _url_for_datatype(datatype):
         return NOMENKLATURA_URL + '/nepal-vdcs/reconcile'
     if datatype == 'District':
         return NOMENKLATURA_URL + '/nepal-districts/reconcile'
+
+
+def _url_for_dataset(dataset):
+    return NOMENKLATURA_URL + '/' + dataset + '/reconcile'
 
 
 @api.route('/nomenklatura/reconcile', methods=['GET', 'POST'])
@@ -118,7 +122,7 @@ def nomenklatura():
         payload['api_key'] = NOMENKLATURA_API_KEY
 
         log.update({'nomenklatura_payload': payload})
-        result = requests.get(_url_for_datatype(data['type']), params=payload)
+        result = requests.get(_url_for_dataset(data['dataset']), params=payload)
         results = result.json()
         print results
 
@@ -137,11 +141,11 @@ def nomenklatura():
         g.db.save_doc(log)
 
         if len(matches) < 1:
-            return create_response({'message': _localized_fail(data.get('lang', 'nep')) % _format_type(data['type']),
+            return create_response({'message': _localized_fail(data.get('lang', 'nep')) % _format_type(data['dataset']),
                                     'match': None,
                                     '_links': {'self': rule_link(request.url_rule)}})
         else:
-            return create_response({'message': _localized_success(data.get('lang', 'nep')) % {'loc_type': _format_type(data['type']), 'match': matches[0]['name']},
+            return create_response({'message': _localized_success(data.get('lang', 'nep')) % {'loc_type': _format_type(data['dataset']), 'match': matches[0]['name']},
                                     'match': matches[0]['name'],
                                     '_links': {'self': rule_link(request.url_rule)}})
 
