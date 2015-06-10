@@ -35,8 +35,10 @@ class Voucher(db.Model):
 
     @classmethod
     def redeem(cls, code, phone):
-        voucher = cls.query.filter_by(code=str(code), redeemed_on=None).first()
+        voucher = cls.query.filter_by(code=str(code)).first()
         if voucher is None:
+            raise VoucherException("Voucher does not exist")
+        if voucher.redeemed_on is not None:
             raise VoucherException("Attempting to redeem an already redeemed voucher")
         voucher.redeemed_on = datetime.now()
         voucher.redeemed_by = phone

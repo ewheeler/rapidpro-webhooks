@@ -91,3 +91,8 @@ class TestViews(TestCase):
         response = self.client.post("/api/v1/voucher/validate", data=json)
         self.assertEquals(response.json,
                           {'validity': 'invalid', 'reason': 'Attempting to redeem an already redeemed voucher'})
+        json.update({'text': '12345'})
+        response = self.client.post("/api/v1/voucher/validate", data=json)
+        self.assertEquals(response.json,
+                          {'validity': 'invalid', 'reason': 'Voucher does not exist'})
+
