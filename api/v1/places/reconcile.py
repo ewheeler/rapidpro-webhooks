@@ -141,11 +141,11 @@ def nomenklatura():
         g.db.save_doc(log)
 
         if len(matches) < 1:
-            return create_response({'message': _localized_fail(data.get('lang', 'nep')) % _format_type(data['dataset']),
+            return create_response({'message': _localized_fail(data.get('lang', 'eng')) % _format_type(data['dataset']),
                                     'match': None,
                                     '_links': {'self': rule_link(request.url_rule)}})
         else:
-            return create_response({'message': _localized_success(data.get('lang', 'nep')) % {'loc_type': _format_type(data['dataset']), 'match': matches[0]['name']},
+            return create_response({'message': _localized_success(data.get('lang', 'eng')) % {'loc_type': _format_type(data['dataset']), 'match': matches[0]['name']},
                                     'match': matches[0]['name'],
                                     '_links': {'self': rule_link(request.url_rule)}})
 
