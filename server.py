@@ -11,7 +11,7 @@ import os
 # python packages
 from flask import Flask
 from flask import jsonify
-from flask.ext.script import Manager
+from flask.ext.script import Manager, Server
 from flask.ext.migrate import Migrate, MigrateCommand
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.exceptions import default_exceptions
@@ -115,7 +115,7 @@ def copyright():
 
 app.jinja_env.globals['copyright'] = copyright
 
-
+manager.add_command('runserver', Server(port=8009))
 if __name__ == '__main__':
     if app.debug is not True:
         import logging

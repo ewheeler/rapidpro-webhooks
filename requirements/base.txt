@@ -9,6 +9,7 @@ u-msgpack-python
 couchdbkit==0.6.5
 unidecode
 Flask-SQLAlchemy
+Flask-Migrate
 psycopg2
 python-stdnum
 nose
