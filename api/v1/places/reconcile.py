@@ -15,8 +15,8 @@ from ..helpers import create_response
 # TODO move these to settings!
 NOMINATUM_URL = "http://nominatim.openstreetmap.org/search"
 
-NOMENKLATURA_URL = "http://nomenklatura.uniceflabs.org/api/2/reconcile"
-NOMENKLATURA_API_KEY = "er6ey12q06e63cxti91q4alpo"
+NOMENKLATURA_URL = "http://nomenklatura.uniceflabs.org/api/2/datasets"
+NOMENKLATURA_API_KEY = "e5d2155a-d0e5-477f-97ba-762ed14af407"
 
 
 @api.route('/nominatum/reconcile', methods=['GET', 'POST'])
@@ -85,6 +85,13 @@ def _clean_query(query):
     return ' '.join(list(cleaned)[:2])
 
 
+def _url_for_datatype(datatype):
+    if datatype == 'VDC':
+        return NOMENKLATURA_URL + '/nepal-vdcs/reconcile'
+    if datatype == 'District':
+        return NOMENKLATURA_URL + '/nepal-districts/reconcile'
+
+
 @api.route('/nomenklatura/reconcile', methods=['GET', 'POST'])
 @limit(max_requests=1000, period=60, by="ip")
 def nomenklatura():
@@ -110,13 +117,10 @@ def nomenklatura():
         payload['query'] = _clean_query(data['query']).title()
         payload['api_key'] = NOMENKLATURA_API_KEY
 
-        if data.get('type'):
-            assert data['type'] in ['VDC', 'District']
-            payload['type'] = data['type']
-
         log.update({'nomenklatura_payload': payload})
-        result = requests.get(NOMENKLATURA_URL, params=payload)
+        result = requests.get(_url_for_datatype(data['type']), params=payload)
         results = result.json()
+        print results
 
         matches = list()
         for match in results['result']:
