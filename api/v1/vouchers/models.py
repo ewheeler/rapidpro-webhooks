@@ -14,6 +14,7 @@ class Voucher(db.Model):
     __tablename__ = 'voucher_vouchers'
 
     id = db.Column(db.Integer, primary_key=True)
+    flow_id = db.Column(db.Integer, nullable=True)
     code = db.Column(db.String(6))
     redeemed_on = db.Column(db.DateTime(timezone=True), nullable=True)
     created_on = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
@@ -34,7 +35,7 @@ class Voucher(db.Model):
         return voucher
 
     @classmethod
-    def redeem(cls, code, phone):
+    def redeem(cls, code, phone, flow):
         voucher = cls.query.filter_by(code=str(code)).first()
         if voucher is None:
             raise VoucherException("Voucher does not exist")
@@ -42,6 +43,7 @@ class Voucher(db.Model):
             raise VoucherException("Attempting to redeem an already redeemed voucher")
         voucher.redeemed_on = datetime.now()
         voucher.redeemed_by = phone
+        voucher.flow_id = flow
         db.session.add(voucher)
         db.session.commit()
 

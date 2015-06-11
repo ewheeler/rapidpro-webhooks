@@ -15,8 +15,9 @@ def validate_voucher():
     data = request.json or request.form
     code = data.get('text')
     phone = data.get('phone')
+    flow = data.get('flow')
     try:
-        Voucher.redeem(code, phone)
+        Voucher.redeem(code, phone, flow)
         response['validity'] = 'valid'
     except VoucherException as e:
         response['reason'] = str(e)

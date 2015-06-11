@@ -38,7 +38,7 @@ class VoucherTestCase(TestCase):
         code = voucher.code
         self.assertIsNone(voucher.redeemed_on)
         self.assertIsNone(voucher.redeemed_by)
-        Voucher.redeem(code, self.test_phone)
+        Voucher.redeem(code, self.test_phone, 12345)
         self.assertEqual(voucher.redeemed_by, self.test_phone)
         self.assertIsNotNone(voucher.redeemed_on)
 
@@ -46,11 +46,11 @@ class VoucherTestCase(TestCase):
         voucher = Voucher.create()
         assert voucher in db.session
         code = voucher.code
-        Voucher.redeem(code, self.test_phone)
+        Voucher.redeem(code, self.test_phone, 12345)
         self.assertEqual(voucher.redeemed_by, self.test_phone)
         self.assertIsNotNone(voucher.redeemed_on)
         with self.assertRaises(VoucherException):
-            Voucher.redeem(code, self.test_phone)
+            Voucher.redeem(code, self.test_phone, 12345)
 
     def test_generated_code_is_verhoeff_compliant(self):
         code = Voucher.generate_code()
