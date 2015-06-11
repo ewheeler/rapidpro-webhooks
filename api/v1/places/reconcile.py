@@ -49,7 +49,8 @@ def nominatum():
                 if match['class'] == 'place':
                     matches.append(match)
         return create_response({'matches': matches,
-                                '_links': {'self': rule_link(request.url_rule)}})
+                                '_links': {'self':
+                                           rule_link(request.url_rule)}})
 
     abort(400)
 
@@ -67,7 +68,8 @@ def _localized_success(lang=None):
     if lang.lower() == 'eng':
         return 'We have recorded your %(loc_type)s as %(match)s'
     if lang.lower() == 'nep':
-        return 'Tapaile lekhnubhayeko %(loc_type)s lai %(match)s bhani record gariyo'
+        return ('Tapaile lekhnubhayeko %(loc_type)s '
+                'lai %(match)s bhani record gariyo')
 
 
 def _format_type(loc_type):
@@ -78,7 +80,8 @@ def _format_type(loc_type):
 
 
 def _clean_query(query):
-    exclude = set(['DISTRICT', 'VDC', 'MUNICIPALITY', 'CITY', 'TOWN', 'GABISA', 'NAGARPALIKA', 'JILLA'])
+    exclude = set(['DISTRICT', 'VDC', 'MUNICIPALITY', 'CITY', 'TOWN',
+                   'GABISA', 'NAGARPALIKA', 'JILLA'])
     query_words = set(query.upper().split())
     cleaned = query_words.difference(exclude)
     # only try to match against the first three words
@@ -109,8 +112,8 @@ def nomenklatura():
 
     if data:
         try:
-            # `data` is likely werkzeug's ImmutableDict inside a CombinedMultiDict
-            # so try to cast with `to_dict`
+            # `data` is likely werkzeug's ImmutableDict inside a
+            # CombinedMultiDict so try to cast with `to_dict`
             log.update({'request_data': data.to_dict()})
         except AttributeError:
             # `data` can also be a vanilla dict
@@ -122,17 +125,15 @@ def nomenklatura():
         payload['api_key'] = NOMENKLATURA_API_KEY
 
         log.update({'nomenklatura_payload': payload})
-        result = requests.get(_url_for_dataset(data['dataset']), params=payload)
+        result = requests.get(_url_for_dataset(data['dataset']),
+                              params=payload)
         results = result.json()
-        print results
 
         matches = list()
         for match in results['result']:
             if match['match'] is True:
                 matches.append(match)
             else:
-                # TODO analyze logs so we can see
-                # if 75 is a resonable threshold
                 if match['score'] >= 50:
                     matches.append(match)
 
@@ -143,10 +144,12 @@ def nomenklatura():
         if len(matches) < 1:
             return create_response({'message': _localized_fail(data.get('lang', 'eng')) % _format_type(data['dataset']),
                                     'match': None,
-                                    '_links': {'self': rule_link(request.url_rule)}})
+                                    '_links': {'self':
+                                               rule_link(request.url_rule)}})
         else:
             return create_response({'message': _localized_success(data.get('lang', 'eng')) % {'loc_type': _format_type(data['dataset']), 'match': matches[0]['name']},
                                     'match': matches[0]['name'],
-                                    '_links': {'self': rule_link(request.url_rule)}})
+                                    '_links': {'self':
+                                               rule_link(request.url_rule)}})
 
     abort(400)
