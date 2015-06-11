@@ -88,13 +88,6 @@ def _clean_query(query):
     return ' '.join(list(cleaned)[:2])
 
 
-def _url_for_datatype(datatype):
-    if datatype == 'VDC':
-        return NOMENKLATURA_URL + '/nepal-vdcs/reconcile'
-    if datatype == 'District':
-        return NOMENKLATURA_URL + '/nepal-districts/reconcile'
-
-
 def _url_for_dataset(dataset):
     return NOMENKLATURA_URL + '/' + dataset + '/reconcile'
 
