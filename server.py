@@ -115,7 +115,7 @@ def copyright():
 
 app.jinja_env.globals['copyright'] = copyright
 
-manager.add_command('runserver', Server(port=8009))
+manager.add_command('runserver', Server(port=app.config.get('SERVER_PORT')))
 if __name__ == '__main__':
     if app.debug is not True:
         import logging
