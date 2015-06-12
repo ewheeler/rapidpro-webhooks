@@ -35,6 +35,14 @@ class Voucher(db.Model):
         return voucher
 
     @classmethod
+    def add_external_codes(cls, codes):
+        codes = set(codes)
+        for code in codes:
+            voucher = cls(code=code)
+            db.session.add(voucher)
+        db.session.commit()
+
+    @classmethod
     def redeem(cls, code, phone, flow):
         voucher = cls.query.filter_by(code=str(code)).first()
         if voucher is None:
@@ -49,9 +57,9 @@ class Voucher(db.Model):
 
     @classmethod
     def _random(cls):
-        _code = random.randint(10000, 99999)
+        _code = random.randint(100, 999)
         while cls.query.filter_by(code=str(_code)).first():
-            _code = random.randint(10000, 99999)
+            _code = random.randint(100, 999)
         return _code
 
     @classmethod

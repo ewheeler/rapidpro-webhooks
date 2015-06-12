@@ -31,6 +31,12 @@ class VoucherTestCase(TestCase):
         self.assertIsNone(voucher.redeemed_on)
         self.assertIsNone(voucher.redeemed_by)
 
+    def test_add_external_codes(self):
+        codes = ['TE3', '87Y', '90W', 'KJ7']
+        initial_count = Voucher.query.count()
+        Voucher.add_external_codes(codes)
+        self.assertEqual(len(codes), Voucher.query.count()-initial_count)
+
     def test_redeem(self):
         voucher = Voucher.create()
         assert voucher in db.session
