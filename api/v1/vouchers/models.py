@@ -15,7 +15,7 @@ class Voucher(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     flow_id = db.Column(db.Integer, nullable=True)
-    code = db.Column(db.String(6))
+    code = db.Column(db.String(20))
     redeemed_on = db.Column(db.DateTime(timezone=True), nullable=True)
     created_on = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     modified_on = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), server_onupdate=db.func.now())
