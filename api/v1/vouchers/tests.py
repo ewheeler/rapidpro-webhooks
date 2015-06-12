@@ -28,7 +28,6 @@ class VoucherTestCase(TestCase):
         voucher = Voucher.create()
         assert voucher in db.session
         self.assertIsNotNone(voucher.code)
-        print voucher.code, "Code of voucher"
         self.assertIsNone(voucher.redeemed_on)
         self.assertIsNone(voucher.redeemed_by)
 
