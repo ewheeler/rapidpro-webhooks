@@ -1,11 +1,13 @@
 from flask import request
 from flask import current_app
+from flask import jsonify
 
 from api import api  # Circular, but safe
 
 from .decorators import limit
 from .helpers import create_response
 from .helpers import rule_link
+from . import exceptions
 
 # import endpoints in other modules
 import thousand
@@ -36,3 +38,24 @@ def list_resources():
 @api.route('/fail', methods=['GET', 'POST'])
 def fail():
     return create_response({'lolz': 1 / 0})
+
+
+@api.errorhandler(exceptions.RateLimitError)
+def handle_rate_limit_error(error):
+    response = jsonify({
+        'type': 'client',
+        'message': error.message,
+        'resource': error.resource})
+    response.status_code = error.status_code or 429
+    return response
+
+
+@api.errorhandler(exceptions.APIError)
+def handle_api_error(error):
+    response = jsonify({
+        'type': 'client',
+        'message': error.message,
+        'resource': error.resource,
+        'field': error.field})
+    response.status_code = error.status_code or 400
+    return response
