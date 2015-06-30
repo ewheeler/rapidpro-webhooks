@@ -55,7 +55,7 @@ app = make_json_app('webhooks', template_folder=tmpl_dir)
 # http://flask.pocoo.org/docs/config/
 # load base config
 app.config.from_object('settings.base')
-# $ export ROLODEX_SETTINGS=/path/to/settings/dev.py
+# $ export RPWEBHOOKS_SETTINGS=/path/to/settings/dev.py
 # load additional config
 app.config.from_envvar('RPWEBHOOKS_SETTINGS')
 # and even add more config
