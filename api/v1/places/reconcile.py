@@ -10,6 +10,7 @@ import requests
 from ..decorators import limit
 from ..helpers import rule_link
 from ..helpers import create_response
+from .. import exceptions
 
 
 # TODO move these to settings!
@@ -78,18 +79,47 @@ def _format_type(loc_type):
     else:
         return 'District'
 
+EXCLUDE = set(['DISTRICT', 'VDC', 'MUNICIPALITY', 'CITY', 'TOWN',
+               'GABISA', 'NAGARPALIKA', 'JILLA',
+               'HELLO', 'FROM', 'LIVE'])
+
 
 def _clean_query(query):
-    exclude = set(['DISTRICT', 'VDC', 'MUNICIPALITY', 'CITY', 'TOWN',
-                   'GABISA', 'NAGARPALIKA', 'JILLA'])
-    query_words = set(query.upper().split())
-    cleaned = query_words.difference(exclude)
-    # only try to match against the first three words
-    return ' '.join(list(cleaned)[:2])
+    # discard tokens of one or two chars
+    # TODO this isnt safe for Nepal VDCs bc of Ot
+    query_words = [word.upper() for word in query.split() if len(word) > 2]
+    cleaned = set(query_words).difference(EXCLUDE)
+    return ' '.join(list(cleaned))
+
+
+def ngrams(tokens, n=2):
+    return zip(*[tokens[i:] for i in range(n)])
 
 
 def _url_for_dataset(dataset):
     return NOMENKLATURA_URL + '/' + dataset + '/reconcile'
+
+
+def _try_harder(data, query, n=2):
+    tokens = query.split()
+    if len(tokens) > n:
+        ngram_matches = list()
+        for ngram in ngrams(tokens, n):
+            payload = {'format': 'json', 'api_key': NOMENKLATURA_API_KEY,
+                        'query': ' '.join(ngram)}
+            result = requests.get(_url_for_dataset(data['dataset']),
+                                params=payload)
+            results = result.json()
+
+            for match in results['result']:
+                if match['match'] is True:
+                    ngram_matches.append(match)
+                else:
+                    if match['score'] >= 50:
+                        ngram_matches.append(match)
+        if len(ngram_matches) > 0:
+            return ngram_matches
+    return None
 
 
 @api.route('/nomenklatura/reconcile', methods=['GET', 'POST'])
@@ -112,9 +142,20 @@ def nomenklatura():
             # `data` can also be a vanilla dict
             log.update({'request_data': data})
 
+        if 'query' not in data:
+            raise exceptions.APIError(message='Missing field: query',
+                                      field='query',
+                                      resource=rule_link(request.url_rule))
+        if 'dataset' not in data:
+            raise exceptions.APIError(message='Missing field: dataset',
+                                      field='dataset',
+                                      resource=rule_link(request.url_rule))
+
         payload = {'format': 'json'}
+
         # titlecase the query for better chance of exact match
-        payload['query'] = _clean_query(data['query']).title()
+        query = _clean_query(data['query']).title()
+        payload['query'] = query
         payload['api_key'] = NOMENKLATURA_API_KEY
 
         log.update({'nomenklatura_payload': payload})
@@ -135,11 +176,26 @@ def nomenklatura():
         g.db.save_doc(log)
 
         if len(matches) < 1:
-            return create_response({'message': _localized_fail(data.get('lang', 'eng')) % _format_type(data['dataset']),
-                                    'match': None,
-                                    '_links': {'self':
-                                               rule_link(request.url_rule)}})
+            # attempt to match each token of query
+            match = _try_harder(data, query, 1)
+            if match is None:
+                # attempt to match each bigram of query
+                match = _try_harder(data, query, 2)
+                if match is None:
+                    return create_response({'message': _localized_fail(data.get('lang', 'eng')) % _format_type(data['dataset']),
+                                            'match': None,
+                                            '_links': {'self':
+                                                    rule_link(request.url_rule)}})
+            print match
+            if match is not None:
+                dataset_name = match[0]['type'][0]['name']
+                return create_response({'message': _localized_success(data.get('lang', 'eng')) % {'loc_type': _format_type(data['dataset']), 'match': match[0]['name']},
+                                        'match': match[0]['name'],
+                                        '_links': {'self':
+                                                rule_link(request.url_rule)}})
+
         else:
+            dataset_name = matches[0]['type'][0]['name']
             return create_response({'message': _localized_success(data.get('lang', 'eng')) % {'loc_type': _format_type(data['dataset']), 'match': matches[0]['name']},
                                     'match': matches[0]['name'],
                                     '_links': {'self':
