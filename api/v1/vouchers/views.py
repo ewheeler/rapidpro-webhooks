@@ -9,7 +9,7 @@ __author__ = 'kenneth'
 
 
 @api.route('/voucher/validate', methods=['POST'])
-@limit(max_requests=10, group="voucher", by='ip')
+@limit(max_requests=10000, group="voucher", by='ip')
 def validate_voucher():
     response = {'validity': 'invalid'}
     data = request.json or request.form

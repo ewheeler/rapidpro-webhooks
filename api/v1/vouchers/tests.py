@@ -17,7 +17,7 @@ class VoucherTestCase(TestCase):
         return app
 
     def setUp(self):
-        self.test_phone = '2567888123456'
+        self.test_phone = '+2567888123456'
         db.create_all()
 
     def tearDown(self):
