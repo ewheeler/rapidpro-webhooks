@@ -16,3 +16,5 @@ public/media/
 *.bak
 data/
 .idea/
+sample_query.json
+fabfile.py

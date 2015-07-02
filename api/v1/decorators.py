@@ -22,7 +22,7 @@ def limit(max_requests=100, period=60, by="ip", group=None):
         @functools.wraps(f)
         def wrapped(*args, **kwargs):
             group = kwargs.get('group') or request.endpoint
-            key = ":".join(["rl", group, by()])
+            key = ":".join(["rl", group, by() or '127.0.0.1'])
 
             try:
                 remaining = max_requests - int(r.get(key))

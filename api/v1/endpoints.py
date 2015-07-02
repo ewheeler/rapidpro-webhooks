@@ -15,6 +15,7 @@ import ureport
 import mvrs
 import eum
 import places
+from vouchers.views import validate_voucher
 
 
 @api.route('/', methods=['GET'])

@@ -11,6 +11,8 @@ import os
 # python packages
 from flask import Flask
 from flask import jsonify
+from flask.ext.script import Manager, Server
+from flask.ext.migrate import Migrate, MigrateCommand
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.exceptions import default_exceptions
 from werkzeug.exceptions import HTTPException
@@ -19,6 +21,7 @@ from werkzeug.exceptions import HTTPException
 # from raven.contrib.flask import Sentry
 # from flask_debugtoolbar import DebugToolbarExtension
 # from flask.ext.rq import RQ
+from api.v1.vouchers.models import db, Voucher
 from ui import ui
 
 
@@ -62,6 +65,8 @@ app.config.from_envvar('RPWEBHOOKS_SETTINGS')
 app.config.update(
     PRODUCT_NAME='rpwebhooks',
 )
+
+
 app.url_map.strict_slashes = False
 app._logger = logging.getLogger('rpwebhooks')
 app.logger_name = 'rpwebhooks'
@@ -74,6 +79,12 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 from api.v1 import api
 app.register_blueprint(api, url_prefix='/api/v1')
 app.register_blueprint(ui, url_prefix='/ui')
+
+db.init_app(app)
+migrate = Migrate(app, db)
+
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
 
 # collect some code and environment info so it can be logged
 app.env_attrs = {
@@ -102,15 +113,16 @@ def copyright():
 
 app.jinja_env.globals['copyright'] = copyright
 
+manager.add_command('runserver', Server(port=app.config.get('SERVER_PORT')))
 if __name__ == '__main__':
     if app.debug is not True:
         import logging
         from logging.handlers import RotatingFileHandler
-        file_handler = RotatingFileHandler('/var/log/webhooks/errors.log',
+        file_handler = RotatingFileHandler(app.config['LOG_FILE'],
                                            maxBytes=1024 * 1024 * 100,
                                            backupCount=20)
-        file_handler.setLevel(logging.ERROR)
+        file_handler.setLevel(logging.DEBUG)
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         file_handler.setFormatter(formatter)
         app.logger.addHandler(file_handler)
-    app.run(host=app.config['SERVER_NAME'], port=5050)
+    manager.run()
