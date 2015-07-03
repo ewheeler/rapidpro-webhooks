@@ -38,8 +38,8 @@ def deploy(dest='dev', user='www-data', git_hash=None, syncdb=False,
 
         if syncdb:
             run("%spython server.py db upgrade" % workon)
-            sudo("chown -R %s:%s ." % (user, user))
-            sudo("chmod -R ug+rwx .")
+        sudo("chown -R %s:%s ." % (user, user))
+        sudo("chmod -R ug+rwx .")
         run("export RPWEBHOOKS_SETTINGS='settings/%s.py' && %snosetests" % (dest, workon))
     sudo("supervisorctl stop %s" % proc_name)
     with settings(warn_only=True):
