@@ -67,7 +67,7 @@ def nomenklatura_retrieve_entity_attributes():
 
     abort(400)
 
-@api.route('/nomenklatura/entity/update', methods=['POST',])
+@api.route('/nomenklatura/entity', methods=['POST',])
 @limit(max_requests=1000, period=60, by="ip")
 def nomenklatura_update_entity_attributes():
     if request.json is not None:
