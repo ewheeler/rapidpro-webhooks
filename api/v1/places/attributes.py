@@ -14,6 +14,7 @@ from ..helpers import create_response
 from .. import exceptions
 
 
+# TODO move to config
 NOMENKLATURA_URL = "http://nomenklatura.uniceflabs.org/api/2/entities"
 NOMENKLATURA_API_KEY = "e5d2155a-d0e5-477f-97ba-762ed14af407"
 NOMENKLATURA_HEADERS = {"Authorization": "e5d2155a-d0e5-477f-97ba-762ed14af407"}
@@ -32,13 +33,10 @@ def nomenklatura_retrieve_entity_attributes():
         data = request.values
 
     if data:
-        print data
-
         if 'entity' not in data:
             raise exceptions.APIError(message='Missing field: entity',
                                       field='entity',
                                       resource=rule_link(request.url_rule))
-
 
         payload = {'format': 'json'}
         payload['api_key'] = NOMENKLATURA_API_KEY
@@ -59,7 +57,6 @@ def nomenklatura_retrieve_entity_attributes():
                                         query: None,
                                         '_links': {'self':
                                                     rule_link(request.url_rule)}})
-
 
         return create_response({'entity': results,
                                 '_links': {'self':
