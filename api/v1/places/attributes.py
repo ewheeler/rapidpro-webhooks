@@ -46,7 +46,6 @@ def nomenklatura_retrieve_entity_attributes():
                               json=payload)
         results = result.json()
 
-        print results
         if 'attribute' in data:
             query = data['attribute']
             if (results.get('attributes') is not None) and (query in results['attributes'].keys()):
@@ -93,7 +92,6 @@ def nomenklatura_update_entity_attributes():
         result = requests.get(_url_for_entity(data['entity']),
                               json=payload)
         results = result.json()
-        print results
 
         # update endpoint requires name
         payload['name'] = results['name']
