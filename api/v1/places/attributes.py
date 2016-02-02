@@ -32,6 +32,7 @@ def nomenklatura_retrieve_entity_attributes():
         data = request.values
 
     if data:
+        print data
 
         if 'entity' not in data:
             raise exceptions.APIError(message='Missing field: entity',
@@ -75,7 +76,6 @@ def nomenklatura_update_entity_attributes():
         data = request.values
 
     if data:
-
         if 'entity' not in data:
             raise exceptions.APIError(message='Missing field: entity',
                                       field='entity',
@@ -85,6 +85,16 @@ def nomenklatura_update_entity_attributes():
                                       field='attributes',
                                       resource=rule_link(request.url_rule))
 
+        # rapidpro doesnt send json post data. instead we'll have a form field
+        # with a json string inside rather than a dict from request.json
+        if not isinstance(data['attributes'], dict):
+            try:
+                # request.values is a CombinedMultiDict, so convert to dict
+                data = data.to_dict()
+                data['attributes'] = json.loads(data['attributes'])
+            except json.JSONDecodeError:
+                # we didn't get json or anything json-like, so abort
+                abort(400)
 
         payload = {'format': 'json'}
         payload['api_key'] = NOMENKLATURA_API_KEY
