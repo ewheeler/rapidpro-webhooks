@@ -13,6 +13,7 @@ from flask import Flask
 from flask import jsonify
 from flask.ext.script import Manager, Server
 from flask.ext.migrate import Migrate, MigrateCommand
+from raven.contrib.flask import Sentry
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.exceptions import default_exceptions
 from werkzeug.exceptions import HTTPException
@@ -79,6 +80,8 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 from api.v1 import api
 app.register_blueprint(api, url_prefix='/api/v1')
 app.register_blueprint(ui, url_prefix='/ui')
+
+sentry = Sentry(app, dsn=app.config.get('SENTRY_DNS'))
 
 db.init_app(app)
 migrate = Migrate(app, db)
