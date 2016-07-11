@@ -22,7 +22,7 @@ from werkzeug.exceptions import HTTPException
 # from raven.contrib.flask import Sentry
 # from flask_debugtoolbar import DebugToolbarExtension
 # from flask.ext.rq import RQ
-from api.v1.vouchers.models import db, Voucher
+from api.v1.db import db
 from ui import ui
 
 
