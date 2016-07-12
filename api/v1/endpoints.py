@@ -16,6 +16,7 @@ import mvrs
 import eum
 import places
 from vouchers.views import validate_voucher
+from fusiontables.views import save_run
 
 
 @api.route('/', methods=['GET'])
