@@ -9,50 +9,23 @@ import datetime
 import os
 
 # python packages
-from flask import Flask
-from flask import jsonify
+from celery import Celery
 from flask.ext.script import Manager, Server
 from flask.ext.migrate import Migrate, MigrateCommand
 from raven.contrib.flask import Sentry
 from werkzeug.contrib.fixers import ProxyFix
-from werkzeug.exceptions import default_exceptions
-from werkzeug.exceptions import HTTPException
 
 # flask extensions
 # from raven.contrib.flask import Sentry
 # from flask_debugtoolbar import DebugToolbarExtension
 # from flask.ext.rq import RQ
 from api.v1.db import db
+from app import make_json_app
 from ui import ui
 
 
 __all__ = ['make_json_app']
 
-
-def make_json_app(import_name, **kwargs):
-    """
-    Creates a JSON-oriented Flask app.
-
-    All error responses that you don't specifically
-    manage yourself will have application/json content
-    type, and will contain JSON like this (just an example):
-
-    { "message": "405: Method Not Allowed" }
-    http://flask.pocoo.org/snippets/83/
-    """
-    def make_json_error(ex):
-        response = jsonify(message=str(ex))
-        response.status_code = (ex.code
-                                if isinstance(ex, HTTPException)
-                                else 500)
-        return response
-
-    app = Flask(import_name, **kwargs)
-
-    for code in default_exceptions.iterkeys():
-        app.error_handler_spec[None][code] = make_json_error
-
-    return app
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = make_json_app('webhooks', template_folder=tmpl_dir)
 
@@ -85,6 +58,11 @@ sentry = Sentry(app, dsn=app.config.get('SENTRY_DNS'))
 
 db.init_app(app)
 migrate = Migrate(app, db)
+
+#Celery
+app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+celery = Celery("webhooks", broker=app.config['CELERY_BROKER_URL'])
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
