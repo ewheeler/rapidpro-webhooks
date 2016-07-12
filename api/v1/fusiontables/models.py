@@ -24,7 +24,6 @@ class Flow(db.Model):
         flow = cls.create(flow_id, flow_id, columns, email)
         return flow
 
-
     @classmethod
     def get_by_flow(cls, flow_id):
         return cls.query.filter_by(flow_id=int(flow_id)).first()
@@ -60,8 +59,7 @@ class Flow(db.Model):
     def update_ft_table(self, columns):
         service = build_service()
         columns = [{'name': x, 'type': 'STRING'} for x in columns]
-        for c in columns:
-            service.column().insert(tableId=self.ft_id, body=c).execute()
+        return [service.column().insert(tableId=self.ft_id, body=c).execute() for c in columns]
 
     def create_ft(self, columns):
         service = build_service()
@@ -70,6 +68,7 @@ class Flow(db.Model):
         self.ft_columns = str([str(x.get('name')) for x in columns])
         table = service.table().insert(body=table).execute()
         self.ft_id = table.get('tableId')
+        return table
 
     def update_fusion_table(self, phone, values):
         service = build_service()
@@ -84,13 +83,13 @@ class Flow(db.Model):
         _order = tuple(_order)
 
         sql = 'INSERT INTO %s %s VALUES %s' % (self.ft_id, str(columns), str(_order))
-        service.query().sql(sql=sql).execute()
+        return service.query().sql(sql=sql).execute()
 
     def give_rapidpro_permission(self):
         email = self.email or RAPIDPRO_EMAIL
         service = build_drive_service()
         body = {'role': 'writer', 'type': 'user', 'emailAddress': email, 'value': email}
-        service.permissions().insert(fileId=self.ft_id, body=body, sendNotificationEmails=True).execute()
+        return service.permissions().insert(fileId=self.ft_id, body=body, sendNotificationEmails=True).execute()
 
     def update_email(self, email):
         if email and self.email != email:
@@ -98,3 +97,4 @@ class Flow(db.Model):
             self.give_rapidpro_permission()
             db.session.add(self)
             db.session.commit()
+        return self.email
