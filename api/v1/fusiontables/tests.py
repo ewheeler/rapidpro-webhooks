@@ -44,16 +44,16 @@ class FusionTableTestCase(TestCase):
         self.assertEquals(in_flow.id, flow.id)
 
     def test_create_from_run(self):
-        data = {'run': [u'155'], 'relayer': [u'-1'], 'text': [u'gse4twt'], 'flow': [u'19'], 'phone': [u'+12065550100'],
+        data = {'run': [u'155'], 'relayer': [u'-1'], 'text': [u'gse4twt'], 'flow': u'19', 'phone': u'+12065550100',
                 'step': [u'ed49df88-404f-4e21-bc74-78c8ef6b9265'],
-                'values': [u'[{"category": {"eng": "All Responses"}, '
+                'values': u'[{"category": {"eng": "All Responses"}, '
                            u'"node": "25cc302c-f569-4a23-8f8a-0c10732b44dc", "time": "2016-07-12T13:06:48.937803Z",'
                            u' "text": "asafater", "rule_value": "asafater", "value": "asafater", "label": "name"}, '
                            u'{"category": {"eng": "All Responses"}, "node": "861ebab6-0129-4739-a609-36bb60ff0a66", '
                            u'"time": "2016-07-12T13:06:50.189755Z", "text": "twfggsg", "rule_value": "twfggsg", '
                            u'"value": "twfggsg", "label": "want"}, {"category": {"eng": "All Responses"}, '
                            u'"node": "d7cae705-1b77-474f-8946-588f631cedbb", "time": "2016-07-12T13:06:52.343391Z", '
-                           u'"text": "gse4twt", "rule_value": "gse4twt", "value": "gse4twt", "label": "reason"}]'],
+                           u'"text": "gse4twt", "rule_value": "gse4twt", "value": "gse4twt", "label": "reason"}]',
                 'time': [u'2016-07-12T13:06:52.387647Z'], 'steps': [u'[{"node": "19af6b8c-d5d3-43f8-b1f8-7e2728d9cac7",'
                                                                     u' "arrived_on": "2016-07-12T13:06:46.593063Z", '
                                                                     u'"left_on": "2016-07-12T13:06:46.608539Z", '
@@ -91,18 +91,22 @@ class FusionTableTestCase(TestCase):
         email = 'rapidprodata+test@gmail.com'
         flow = Flow.create_from_run(data, email)
         assert flow in db.session
-        self.assertEquals(flow.flow_id, data.get('flow'))
+        self.assertEquals(unicode(flow.flow_id), data.get('flow'))
 
     def test_get_columns_from_values(self):
-        values = '''[{"category": {"eng": "All Responses"}, '
-                           u'"node": "25cc302c-f569-4a23-8f8a-0c10732b44dc", "time": "2016-07-12T13:06:48.937803Z",'
-                           u' "text": "asafater", "rule_value": "asafater", "value": "asafater", "label": "name"}, '
-                           u'{"category": {"eng": "All Responses"}, "node": "861ebab6-0129-4739-a609-36bb60ff0a66", '
-                           u'"time": "2016-07-12T13:06:50.189755Z", "text": "twfggsg", "rule_value": "twfggsg", '
-                           u'"value": "twfggsg", "label": "want"}, {"category": {"eng": "All Responses"}, '
-                           u'"node": "d7cae705-1b77-474f-8946-588f631cedbb", "time": "2016-07-12T13:06:52.343391Z", '
-                           u'"text": "gse4twt", "rule_value": "gse4twt", "value": "gse4twt", "label": "reason"}]'''
-        values = json.loads(values)
+        values = [{"category": {"eng": "All Responses"}, "node": "25cc302c-f569-4a23-8f8a-0c10732b44dc",
+                   "time": "2016-07-12T13:06:48.937803Z", "text": "asafater", "rule_value": "asafater",
+                   "value": "asafater", "label": "name"}, {"category": {"eng": "All Responses"},
+                                                           "node": "861ebab6-0129-4739-a609-36bb60ff0a66",
+                                                           "time": "2016-07-12T13:06:50.189755Z",
+                                                           "text": "twfggsg", "rule_value": "twfggsg",
+                                                           "value": "twfggsg", "label": "want"},
+                  {"category": {"eng": "All Responses"},
+                   "node": "d7cae705-1b77-474f-8946-588f631cedbb", "time": "2016-07-12T13:06:52.343391Z",
+                   "text": "gse4twt", "rule_value": "gse4twt", "value": "gse4twt", "label": "reason"}]
         columns = Flow.get_columns_from_values(values)
-        self.assertEquals(columns, ['name', 'want', 'reason'])
+        self.assertEquals(columns, [{'name': 'phone', 'type': 'STRING'},
+                                    {'name': 'name', 'type': 'STRING'},
+                                    {'name': 'want', 'type': 'STRING'},
+                                    {'name': 'reason', 'type': 'STRING'}])
 

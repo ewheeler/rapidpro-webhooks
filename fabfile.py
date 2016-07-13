@@ -5,7 +5,7 @@ from fabric.operations import run, sudo
 __author__ = 'kenneth'
 
 
-def deploy(dest='dev', user='www-data', git_hash=None, syncdb=False,
+def deploy(dest='dev', user='www-data', git_hash=None, syncdb=False, restart_celery=False,
            source='https://github.com/ewheeler/rapidpro-webhooks.git'):
     if dest == 'prod':
         print "Deploying to prod"
@@ -48,3 +48,5 @@ def deploy(dest='dev', user='www-data', git_hash=None, syncdb=False,
             proc_id = output.split()[1].strip()
             sudo("kill -9 %s" % proc_id)
     sudo("supervisorctl start %s" % proc_name)
+    if dest == 'prod' and restart_celery:
+        sudo("supervisorctl restart webhooks_celery")
