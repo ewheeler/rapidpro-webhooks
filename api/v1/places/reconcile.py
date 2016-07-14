@@ -1,4 +1,5 @@
 import datetime
+from simplejson import JSONDecodeError
 
 from ..api import api  # Circular, but safe
 
@@ -161,7 +162,10 @@ def nomenklatura():
         log.update({'nomenklatura_payload': payload})
         result = requests.get(_url_for_dataset(data['dataset']),
                               params=payload)
-        results = result.json()
+        try:
+            results = result.json()
+        except JSONDecodeError:
+            results = []
 
         matches = list()
         for match in results['result']:
