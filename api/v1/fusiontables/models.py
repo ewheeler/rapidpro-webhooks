@@ -1,4 +1,6 @@
+from collections import OrderedDict
 import json
+from ordered_set import OrderedSet
 from api.v1.db import db
 from api.v1.fusiontables.utils import build_service, build_drive_service
 from settings.base import RAPIDPRO_EMAIL
@@ -42,7 +44,8 @@ class Flow(db.Model):
         columns = [{'name': 'phone', 'type': 'STRING'}]
 
         for v in values:
-            columns.append({'name': v.get('label'), 'type': 'STRING'})
+            columns.append({'name': '%s  value' % v.get('label'), 'type': 'STRING'})
+            columns.append({'name': '%s  category' % v.get('label'), 'type': 'STRING'})
         return columns
 
     def get_updated_columns(self, columns, values):
@@ -75,14 +78,20 @@ class Flow(db.Model):
         columns = tuple([str(a) for a in eval(self.ft_columns)])
         columns = tuple([str(a) for a in self.get_updated_columns(columns, values)])
         _order = [str(phone)]
+        nodes = OrderedDict()
         for c in columns:
+            if c == 'phone': continue
+            label, _t = tuple(c.split('  '))
+            if _t != 'value': continue
             for v in values:
-                if v.get('label') == c:
-                    _order.append(str(v.get('value')))
-                    continue
-        _order = tuple(_order)
+                n = v.get('node')
+                if v.get('label') == label:
+                    nodes[n] = [str(v.get('value')), str(v.get('category').get('eng'))]
 
-        sql = 'INSERT INTO %s %s VALUES %s' % (self.ft_id, str(columns), str(_order))
+        for _v in nodes.values():
+            _order.extend(_v)
+
+        sql = 'INSERT INTO %s %s VALUES %s' % (self.ft_id, str(tuple(OrderedSet(columns))), str(tuple(_order)))
         return service.query().sql(sql=sql).execute()
 
     def give_rapidpro_permission(self):

@@ -106,7 +106,11 @@ class FusionTableTestCase(TestCase):
                    "text": "gse4twt", "rule_value": "gse4twt", "value": "gse4twt", "label": "reason"}]
         columns = Flow.get_columns_from_values(values)
         self.assertEquals(columns, [{'name': 'phone', 'type': 'STRING'},
-                                    {'name': 'name', 'type': 'STRING'},
-                                    {'name': 'want', 'type': 'STRING'},
-                                    {'name': 'reason', 'type': 'STRING'}])
+                                    {'name': 'name  value', 'type': 'STRING'},
+                                    {'name': 'name  category', 'type': 'STRING'},
+                                    {'name': 'want  value', 'type': 'STRING'},
+                                    {'name': 'want  category', 'type': 'STRING'},
+                                    {'name': 'reason  value', 'type': 'STRING'},
+                                    {'name': 'reason  category', 'type': 'STRING'}
+                                    ])
 
