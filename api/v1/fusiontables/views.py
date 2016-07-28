@@ -17,14 +17,15 @@ def save_run():
     phone = data.get('phone')
     flow_id = data.get('flow')
     email = request.args.get('email')
+    base_language = data.get('flow_base_language')
     values = json.loads(data.get('values'))
 
     flow = Flow.get_by_flow(flow_id)
     if flow:
-        update_fusion_table.delay(flow.id, phone, values, email)
+        update_fusion_table.delay(flow.id, phone, values, email, base_language)
     else:
         action = 'create and insert'
-        create_flow_and_update_ft.delay(data, email, phone, values)
+        create_flow_and_update_ft.delay(data, email, phone, values, base_language)
 
     response = {'action': action}
     return create_response(response)

@@ -19,11 +19,12 @@ class Flow(db.Model):
     @classmethod
     def create_from_run(cls, run, email):
         flow_id = run.get('flow')
+        flow_name = run.get('flow_name')
 
         values = json.loads(run.get('values'))
         columns = cls.get_columns_from_values(values)
 
-        flow = cls.create(flow_id, flow_id, columns, email)
+        flow = cls.create(flow_id, flow_name, columns, email)
         return flow
 
     @classmethod
@@ -42,10 +43,12 @@ class Flow(db.Model):
     @classmethod
     def get_columns_from_values(cls, values):
         columns = [{'name': 'phone', 'type': 'STRING'}]
-
+        n = []
         for v in values:
+            if v.get('node') in n: continue
             columns.append({'name': '%s (value)' % v.get('label'), 'type': 'STRING'})
             columns.append({'name': '%s (category)' % v.get('label'), 'type': 'STRING'})
+            n.append(v.get('node'))
         return columns
 
     def get_updated_columns(self, columns, values):
@@ -73,7 +76,7 @@ class Flow(db.Model):
         self.ft_id = table.get('tableId')
         return table
 
-    def update_fusion_table(self, phone, values):
+    def update_fusion_table(self, phone, values, base_language):
         service = build_service()
         columns = tuple([str(a) for a in eval(self.ft_columns)])
         columns = tuple([str(a) for a in self.get_updated_columns(columns, values)])
@@ -85,8 +88,7 @@ class Flow(db.Model):
             for v in values:
                 n = v.get('node')
                 if v.get('label') == label:
-                    category = str(v.get('category').get('base') or v.get('category').get('eng') or
-                                   v.get('category').values()[0])
+                    category = str(v.get('category').get(base_language))
                     nodes[n] = [str(v.get('value')), category]
 
         for _v in nodes.values():

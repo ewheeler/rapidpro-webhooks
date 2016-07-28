@@ -30,13 +30,13 @@ migrate = Migrate(app, db)
 app.app_context().push()
 
 @celery.task
-def update_fusion_table(flow_id, phone, values, email):
+def update_fusion_table(flow_id, phone, values, email, base_language):
     flow = Flow.query.get(flow_id)
     flow.update_email(email)
-    flow.update_fusion_table(phone, values)
+    flow.update_fusion_table(phone, values, base_language)
 
 
 @celery.task
-def create_flow_and_update_ft(data, email, phone, values):
+def create_flow_and_update_ft(data, email, phone, values, base_language):
     flow = Flow.create_from_run(data, email)
-    flow.update_fusion_table(phone, values)
+    flow.update_fusion_table(phone, values, base_language)
