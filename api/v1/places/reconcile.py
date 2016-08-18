@@ -168,12 +168,13 @@ def nomenklatura():
             results = []
 
         matches = list()
-        for match in results['result']:
-            if match['match'] is True:
-                matches.append(match)
-            else:
-                if match['score'] >= 50:
+        if len(results) > 0:
+            for match in results['result']:
+                if match['match'] is True:
                     matches.append(match)
+                else:
+                    if match['score'] >= 50:
+                        matches.append(match)
 
         log.update({'nomenklatura_response': results})
         log.update({'matches': matches})
