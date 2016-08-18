@@ -54,7 +54,7 @@ from api.v1 import api
 app.register_blueprint(api, url_prefix='/api/v1')
 app.register_blueprint(ui, url_prefix='/ui')
 
-sentry = Sentry(app, dsn=app.config.get('SENTRY_DNS'))
+sentry = Sentry(app, dsn=app.config.get('SENTRY_DSN'))
 
 db.init_app(app)
 migrate = Migrate(app, db)
