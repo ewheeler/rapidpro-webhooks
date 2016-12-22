@@ -17,6 +17,7 @@ import eum
 import places
 from vouchers.views import validate_voucher
 from fusiontables.views import save_run
+from referrals.views import create_referral, refer_referral
 
 
 @api.route('/', methods=['GET'])
