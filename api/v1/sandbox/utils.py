@@ -14,5 +14,6 @@ def do_auth():
     if credentials.access_token_expired: auth.login()
     return auth
 
+
 def build_drive_service():
     return build('drive', 'v2', http=do_auth())
