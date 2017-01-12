@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import json
+from datetime import datetime
 from ordered_set import OrderedSet
 from api.v1.db import db
 from api.v1.fusiontables.utils import build_service, build_drive_service
@@ -15,6 +16,7 @@ class Flow(db.Model):
     ft_id = db.Column(db.String)
     ft_columns = db.Column(db.String)
     email = db.Column(db.String, nullable=True)
+    created_on = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
 
     @classmethod
     def create_from_run(cls, run, email):
