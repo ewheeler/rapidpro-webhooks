@@ -21,6 +21,7 @@ from werkzeug.contrib.fixers import ProxyFix
 # from flask.ext.rq import RQ
 from api.v1.db import db
 from app import make_json_app
+from management import UpdateFt, CreateFT
 from ui import ui
 
 
@@ -66,6 +67,8 @@ celery = Celery("webhooks", broker=app.config['CELERY_BROKER_URL'])
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
+manager.add_command('updateft', UpdateFt())
+manager.add_command('createft', CreateFT())
 
 # collect some code and environment info so it can be logged
 app.env_attrs = {
