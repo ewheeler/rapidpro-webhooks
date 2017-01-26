@@ -92,12 +92,14 @@ class RefCode(db.Model):
             if code.in_ft:
                 sql = "UPDATE %s SET Referrals = %d WHERE ROWID = '%s'" % (cls.get_main_ft_id(),
                                                                            code.get_referral_count(), code.ft_row_id)
+                print sql
                 service.query().sql(sql=sql).execute()
             else:
                 values = (str(code.id), str(code.name).replace("'", "\\'"), str(code.phone), str(code.email),
                           str(code.group).replace("'", "\\'"), str(code.country).replace("'", "\\'"),
                           str(code.created_on), str(code.ft_id), str(code.get_referral_count()))
                 sql = 'INSERT INTO %s %s VALUES %s' % (cls.get_main_ft_id(), str(cls.ATTR_NAMES), str(values))
+                print sql
                 response = service.query().sql(sql=sql).execute()
                 code.in_ft = True
                 code.ft_row_id = response['rows'][0][0]
