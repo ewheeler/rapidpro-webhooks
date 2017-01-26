@@ -90,13 +90,14 @@ class RefCode(db.Model):
         service = build_service()
         for code in cls.query.all():
             if code.in_ft:
-                sql = "UPDATE %s SET Referrals = %d WHERE ROWID = '%s'" % (cls.get_main_ft_id(), code.get_referral_count(),
-                                                                      code.ft_row_id)
+                sql = "UPDATE %s SET Referrals = %d WHERE ROWID = '%s'" % (cls.get_main_ft_id(),
+                                                                           code.get_referral_count(), code.ft_row_id)
                 service.query().sql(sql=sql).execute()
             else:
                 values = (str(code.id), str(code.name), str(code.phone), str(code.email), str(code.group),
                           str(code.country), str(code.created_on), str(code.ft_id), str(code.get_referral_count()))
-                sql = 'INSERT INTO %s %s VALUES %s' % (cls.get_main_ft_id(), str(cls.ATTR_NAMES), str(values))
+                sql = 'INSERT INTO %s %s VALUES %s' % (cls.get_main_ft_id(), str(cls.ATTR_NAMES), str(values).
+                                                       replace("'", "\\'"))
                 response = service.query().sql(sql=sql).execute()
                 code.in_ft = True
                 code.ft_row_id = response['rows'][0][0]
