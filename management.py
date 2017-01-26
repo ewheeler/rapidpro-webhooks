@@ -20,3 +20,15 @@ class CreateFT(Command):
         for code in codes:
             logging.info("Creating FT for %d" % code.id)
             logging.info(code.create_ft())
+
+
+class CreateMainFT(Command):
+    def run(self):
+        logging.info("Creating Main FT")
+        RefCode.create_main_ft()
+
+
+class UpdateMainFT(Command):
+    def run(self):
+        logging.info("Updating Main FT")
+        RefCode.update_main_ft()

@@ -7,9 +7,21 @@ from settings.base import RAPIDPRO_EMAIL
 __author__ = 'kenneth'
 
 
+class FT(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ft_id = db.Column(db.String(100))
+
+
 class RefCode(db.Model):
     COLUMNS = ({'name': 'Rapidpro UUID', 'type': 'STRING'}, {'name': 'Join Date', 'type': 'STRING'})
     COLUMN_NAMES = ('Rapidpro UUID', 'Join Date')
+    ATTR = ({'name': "ID", "type": "STRING"},
+            {'name': "Name", "type": "STRING"}, {'name': "Phone", "type": "STRING"},
+            {'name': "Email", "type": "STRING"}, {'name': "Group", "type": "STRING"},
+            {'name': "Country", "type": "STRING"}, {'name': "Created On", "type": "STRING"},
+            {'name': "Fusion Table ID", "type": "STRING"}, {'name': "Referrals", "type": "STRING"})
+
+    ATTR_NAMES = ("ID", "Name", "Phone", "Email", "Group", "Country", "Created On", "Fusion Table ID", "Referrals")
 
     id = db.Column(db.Integer, primary_key=True)
     ft_id = db.Column(db.String(100))
@@ -22,6 +34,8 @@ class RefCode(db.Model):
     created_on = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     modified_on = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), server_onupdate=db.func.now())
     last_ft_update = db.Column(db.DateTime(timezone=True))
+    in_ft = db.Column(db.Boolean, default=False)
+    ft_row_id = db.Column(db.String(100))
 
     @classmethod
     def create_code(cls, rapidpro_uuid, name, phone, email, group, country):
@@ -53,6 +67,44 @@ class RefCode(db.Model):
     def get_with_no_ft_id(cls):
         return cls.query.filter_by(ft_id=None)
 
+
+    @classmethod
+    def get_main_ft_id(cls):
+        return FT.query.first().ft_id
+
+    @classmethod
+    def create_main_ft(cls):
+        service = build_service()
+        table = {'name': "Ureport Referrals", 'description': "Code and the number of referrals per code",
+                 'isExportable': True, 'columns': cls.ATTR}
+        table = service.table().insert(body=table).execute()
+        service = build_drive_service()
+        body = {'role': 'writer', 'type': 'user', 'emailAddress': RAPIDPRO_EMAIL, 'value': RAPIDPRO_EMAIL}
+        service.permissions().insert(fileId=table.get('tableId'), body=body, sendNotificationEmails=True).execute()
+        db.session.add(FT(ft_id=table.get('tableId')))
+        db.session.commit()
+        return table
+
+    @classmethod
+    def update_main_ft(cls):
+        service = build_service()
+        for code in cls.query.all():
+            if code.in_ft:
+                sql = "UPDATE %s SET Referrals = %d WHERE ROWID = '%s'" % (cls.get_main_ft_id(), code.get_referral_count(),
+                                                                      code.ft_row_id)
+                service.query().sql(sql=sql).execute()
+            else:
+                values = (str(code.id), str(code.name), str(code.phone), str(code.email), str(code.group),
+                          str(code.country), str(code.created_on), str(code.ft_id), str(code.get_referral_count()))
+                sql = 'INSERT INTO %s %s VALUES %s' % (cls.get_main_ft_id(), str(cls.ATTR_NAMES), str(values))
+                response = service.query().sql(sql=sql).execute()
+                code.in_ft = True
+                code.ft_row_id = response['rows'][0][0]
+                db.session.add(code)
+                db.session.commit()
+
+            logging.info(sql)
+
     def get_prefix(self):
         return "%s%s0" % (self.country[:2], self.group)
 
@@ -66,6 +118,9 @@ class RefCode(db.Model):
                 filter(Referral.created_on >= self.last_ft_update).order_by(desc(Referral.created_on))
         return Referral.query.filter_by(ref_code=self.id).order_by(desc(Referral.created_on))
 
+    def get_referral_count(self):
+        return self.get_referrals().count()
+
     def create_ft(self):
         service = build_service()
         table = {'name': self.name, 'description': "Referrals for Code %s" % self.id, 'isExportable': True,
@@ -73,6 +128,7 @@ class RefCode(db.Model):
         table = service.table().insert(body=table).execute()
         self.ft_id = table.get('tableId')
         self.give_rapidpro_permission()
+        self.give_rapidpro_permission(RAPIDPRO_EMAIL)
         db.session.add(self)
         db.session.commit()
         return table
@@ -91,8 +147,9 @@ class RefCode(db.Model):
             db.session.commit()
             return update
 
-    def give_rapidpro_permission(self):
-        email = self.email or RAPIDPRO_EMAIL
+    def give_rapidpro_permission(self, email=None):
+        if not email:
+            email = self.email or RAPIDPRO_EMAIL
         service = build_drive_service()
         body = {'role': 'writer', 'type': 'user', 'emailAddress': email, 'value': email}
         return service.permissions().insert(fileId=self.ft_id, body=body, sendNotificationEmails=True).execute()
