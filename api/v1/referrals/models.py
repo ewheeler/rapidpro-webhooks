@@ -113,7 +113,8 @@ class RefCode(db.Model):
 
     @property
     def ref_code(self):
-        return "%s%s0%s" % (self.country[:2], self.group, self.id)
+        code = "%s%s0%s" % (self.country[:2], self.group, self.id)
+        return code.upper()
 
     def get_referrals(self, last_update=False):
         if last_update:
@@ -123,6 +124,10 @@ class RefCode(db.Model):
 
     def get_referral_count(self):
         return self.get_referrals().count()
+
+    @property
+    def ref_count(self):
+        return self.get_referral_count()
 
     def create_ft(self):
         service = build_service()
