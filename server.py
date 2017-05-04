@@ -10,6 +10,7 @@ import os
 
 # python packages
 from celery import Celery
+from flask.ext.admin import Admin
 from flask.ext.script import Manager, Server
 from flask.ext.migrate import Migrate, MigrateCommand
 from raven.contrib.flask import Sentry
@@ -20,6 +21,8 @@ from werkzeug.contrib.fixers import ProxyFix
 # from flask_debugtoolbar import DebugToolbarExtension
 # from flask.ext.rq import RQ
 from api.v1.db import db
+from api.v1.referrals.admin import RefModelView, ReferralModelView
+from api.v1.referrals.models import Referral, RefCode
 from app import make_json_app
 from management import UpdateFt, CreateFT, CreateMainFT, UpdateMainFT
 from ui import ui
@@ -64,6 +67,10 @@ migrate = Migrate(app, db)
 app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
 app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
 celery = Celery("webhooks", broker=app.config['CELERY_BROKER_URL'])
+
+admin = Admin(app, name="Referrals", template_mode='bootstrap3')
+admin.add_view(RefModelView(RefCode, db.session, name="Partners"))
+admin.add_view(ReferralModelView(Referral, db.session, name="Referrals"))
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
