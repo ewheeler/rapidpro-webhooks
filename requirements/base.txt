@@ -53,3 +53,4 @@ u-msgpack-python==2.1
 Unidecode==0.4.19
 uritemplate==0.6
 Werkzeug==0.11.3
+flask_admin
