@@ -21,8 +21,8 @@ from werkzeug.contrib.fixers import ProxyFix
 # from flask_debugtoolbar import DebugToolbarExtension
 # from flask.ext.rq import RQ
 from api.v1.db import db
-from api.v1.referrals.admin import RefModelView, ReferralModelView
-from api.v1.referrals.models import Referral, RefCode
+from api.v1.referrals.admin import RefModelView, ReferralModelView, UserModelView
+from api.v1.referrals.models import Referral, RefCode, User
 from app import make_json_app
 from management import UpdateFt, CreateFT, CreateMainFT, UpdateMainFT
 from ui import ui
@@ -71,6 +71,7 @@ celery = Celery("webhooks", broker=app.config['CELERY_BROKER_URL'])
 admin = Admin(app, name="Referrals", template_mode='bootstrap3')
 admin.add_view(RefModelView(RefCode, db.session, name="Partners"))
 admin.add_view(ReferralModelView(Referral, db.session, name="Referrals"))
+admin.add_view(UserModelView(User, db.session, name="Users"))
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)

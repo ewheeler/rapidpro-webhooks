@@ -1,6 +1,8 @@
 import json
-from flask import request
-from models import RefCode, Referral
+from flask import request, redirect, render_template
+from flask.ext.login import login_required, current_user, LoginManager
+from forms import LoginForm
+from models import RefCode, Referral, User
 from ..api import api
 from ..helpers import create_response
 from ..decorators import limit
@@ -50,3 +52,27 @@ def refer_referral():
             Referral.create(contact, code)
             response['validity'] = 'valid'
     return create_response(response)
+
+login_manager = LoginManager()
+
+@login_manager.user_loader
+def user_loader(user_id):
+    return User.query.get(int(user_id))
+
+
+@api.route('/login', methods=["GET", "POST"])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and user.login(form.password.data):
+            return redirect('/admin')
+    return render_template("admin/login.html", form=form)
+
+
+@api.route('/logout', methods=['GET'])
+@login_required
+def logout():
+    user = current_user
+    user.logout()
+    return redirect('/admin')

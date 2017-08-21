@@ -20,3 +20,9 @@ class ReferralModelView(ModelView):
     column_exclude_list = ['ref_code']
     column_searchable_list = ['code']
 
+
+class UserModelView(ModelView):
+    can_delete = False
+    can_create = False
+    can_export = True
+    can_set_page_size = True

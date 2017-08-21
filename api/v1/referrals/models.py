@@ -1,4 +1,5 @@
 import logging
+from flask.ext.login import login_user
 from sqlalchemy import desc
 from api.v1.fusiontables.utils import build_service, build_drive_service
 from ..db import db
@@ -181,3 +182,31 @@ class Referral(db.Model):
         db.session.add(r)
         db.session.commit()
         return r
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String, unique=True)
+    password = db.Column(db.String)
+    authenticated = db.Column(db.Boolean, default=False)
+
+    def is_active(self):
+        return True
+
+    def get_id(self):
+        return self.id
+
+    def is_authenticated(self):
+        return self.authenticated
+
+    def is_anonymous(self):
+        return False
+
+    def login(self, password):
+        if self.password == password:
+            self.authenticated = True
+            db.session.add(self)
+            db.session.commit()
+            login_user(self, remember=True)
+            return True
+        return False
