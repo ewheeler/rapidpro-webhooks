@@ -1,6 +1,6 @@
 import json
 from flask import request, redirect, render_template
-from flask.ext.login import login_required, current_user, LoginManager
+from flask.ext.login import login_required, current_user
 from forms import LoginForm
 from models import RefCode, Referral, User
 from ..api import api
@@ -53,17 +53,14 @@ def refer_referral():
             response['validity'] = 'valid'
     return create_response(response)
 
-login_manager = LoginManager()
-
-@login_manager.user_loader
-def user_loader(user_id):
-    return User.query.get(int(user_id))
-
 
 @api.route('/login', methods=["GET", "POST"])
 def login():
     form = LoginForm()
+    print form.email.data
+    print form.password.data
     if form.validate_on_submit():
+        print True
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.login(form.password.data):
             return redirect('/admin')

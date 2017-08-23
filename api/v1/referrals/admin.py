@@ -1,4 +1,7 @@
+from flask import redirect, request
 from flask.ext.admin.contrib.sqla import ModelView
+from flask.ext.login import current_user
+from api.v1.referrals.models import RefCode
 
 
 class RefModelView(ModelView):
@@ -11,6 +14,17 @@ class RefModelView(ModelView):
     column_searchable_list = ['email', 'name', 'phone']
     column_list = ['name', 'phone', 'email', 'group', 'country', 'created_on', 'ref_code', 'ref_count']
 
+    def get_query(self):
+        if current_user.is_superuser:
+            return super(RefModelView, self).get_query()
+        return super(RefModelView, self).get_query().filter(RefCode.country == current_user.country)
+
+    def is_accessible(self):
+        return current_user.is_authenticated
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect("/api/v1/login?next=%s" % request.url)
+
 
 class ReferralModelView(ModelView):
     can_delete = False
@@ -20,9 +34,26 @@ class ReferralModelView(ModelView):
     column_exclude_list = ['ref_code']
     column_searchable_list = ['code']
 
+    def is_accessible(self):
+        return current_user.is_authenticated
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect("/api/v1/login?next=%s" % request.url)
+
 
 class UserModelView(ModelView):
     can_delete = False
-    can_create = False
-    can_export = True
+    can_create = True
+    can_edit = True
+    can_export = False
+    column_exclude_list = ['password', 'authenticated']
+    form_excluded_columns = ['authenticated', 'country_slug']
     can_set_page_size = True
+
+    def is_accessible(self):
+        if current_user.is_authenticated:
+            return current_user.superuser
+        return False
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect("/api/v1/login?next=%s" % request.url)

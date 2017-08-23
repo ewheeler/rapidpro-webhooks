@@ -1,6 +1,6 @@
 import logging
 from flask.ext.script import Command
-from api.v1.referrals.models import RefCode
+from api.v1.referrals.models import RefCode, User
 
 __author__ = 'kenneth'
 
@@ -32,3 +32,21 @@ class UpdateMainFT(Command):
     def run(self):
         logging.info("Updating Main FT")
         RefCode.update_main_ft()
+
+
+class UpdateCountrySlug(Command):
+    def run(self):
+        logging.info("Updating Country Slug")
+        User.update_country_slug()
+        RefCode.update_country_slug()
+
+
+class CreateSuperUser(Command):
+    def run(self):
+        logging.info("Creating SuperUser")
+        email = input("Email: ")
+        password = input("Password: ")
+        User.create_superuser(email, password)
+        logging.info("Superuser created successfully")
+
+
