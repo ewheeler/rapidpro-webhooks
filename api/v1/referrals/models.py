@@ -1,5 +1,7 @@
 import logging
+from flask.ext.login import login_user, logout_user
 from sqlalchemy import desc
+from sqlalchemy.event import listens_for
 from api.v1.fusiontables.utils import build_service, build_drive_service
 from ..db import db
 from settings.base import RAPIDPRO_EMAIL
@@ -31,6 +33,7 @@ class RefCode(db.Model):
     email = db.Column(db.String(50))
     group = db.Column(db.String(50))
     country = db.Column(db.String(50))
+    country_slug = db.Column(db.String(50))
     created_on = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     modified_on = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), server_onupdate=db.func.now())
     last_ft_update = db.Column(db.DateTime(timezone=True))
@@ -48,9 +51,17 @@ class RefCode(db.Model):
         ref_code.email = email
         ref_code.group = group
         ref_code.country = country
+        ref_code.country_slug = country.lower().replace(" ", "_")
         db.session.add(ref_code)
         db.session.commit()
         return ref_code
+
+    @classmethod
+    def update_country_slug(cls):
+        for obj in cls.query.all():
+            obj.country_slug = obj.country.lower().replace(" ", "_")
+            db.session.add(obj)
+            db.session.commit()
 
     @classmethod
     def get_by_code(cls, code):
@@ -183,3 +194,65 @@ class Referral(db.Model):
         db.session.add(r)
         db.session.commit()
         return r
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String, unique=True)
+    password = db.Column(db.String)
+    country = db.Column(db.String)
+    country_slug = db.Column(db.String)
+    is_superuser = db.Column(db.Boolean, default=False)
+    authenticated = db.Column(db.Boolean, default=False)
+
+    @classmethod
+    def create_superuser(cls, email, password):
+        user = cls(email=email, password=password, is_superuser=True)
+        db.session.add(user)
+        db.session.commit()
+
+    def is_active(self):
+        return True
+
+    def get_id(self):
+        return self.id
+
+    def is_authenticated(self):
+        return self.authenticated
+
+    def is_anonymous(self):
+        return False
+
+    def superuser(self):
+        return self.is_superuser
+
+    def login(self, password):
+        if self.password == password:
+            self.authenticated = True
+            db.session.add(self)
+            db.session.commit()
+            login_user(self, remember=True)
+            return True
+        return False
+
+    def create_slug(self):
+        if self.country:
+            self.country_slug = self.country.lower().replace(" ", "_")
+
+    def logout(self):
+        self.authenticated = False
+        db.session.add(self)
+        db.session.commit()
+        logout_user()
+
+    @classmethod
+    def update_country_slug(cls):
+        for obj in cls.query.all():
+            obj.create_slug()
+            db.session.add(obj)
+            db.session.commit()
+
+
+@listens_for(User, 'before_insert')
+def create_slug(mapper, connect, self):
+    self.create_slug()

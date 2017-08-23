@@ -11,6 +11,7 @@ import os
 # python packages
 from celery import Celery
 from flask.ext.admin import Admin
+from flask.ext.login import LoginManager
 from flask.ext.script import Manager, Server
 from flask.ext.migrate import Migrate, MigrateCommand
 from raven.contrib.flask import Sentry
@@ -21,10 +22,10 @@ from werkzeug.contrib.fixers import ProxyFix
 # from flask_debugtoolbar import DebugToolbarExtension
 # from flask.ext.rq import RQ
 from api.v1.db import db
-from api.v1.referrals.admin import RefModelView, ReferralModelView
-from api.v1.referrals.models import Referral, RefCode
+from api.v1.referrals.admin import RefModelView, ReferralModelView, UserModelView
+from api.v1.referrals.models import Referral, RefCode, User
 from app import make_json_app
-from management import UpdateFt, CreateFT, CreateMainFT, UpdateMainFT
+from management import UpdateFt, CreateFT, CreateMainFT, UpdateMainFT, UpdateCountrySlug, CreateSuperUser
 from ui import ui
 
 
@@ -68,9 +69,17 @@ app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
 app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
 celery = Celery("webhooks", broker=app.config['CELERY_BROKER_URL'])
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 admin = Admin(app, name="Referrals", template_mode='bootstrap3')
 admin.add_view(RefModelView(RefCode, db.session, name="Partners"))
 admin.add_view(ReferralModelView(Referral, db.session, name="Referrals"))
+admin.add_view(UserModelView(User, db.session, name="Users"))
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
@@ -78,6 +87,8 @@ manager.add_command('updateft', UpdateFt())
 manager.add_command('createft', CreateFT())
 manager.add_command('createmainft', CreateMainFT())
 manager.add_command('updatemainft', UpdateMainFT())
+manager.add_command('updatecountryslug', UpdateCountrySlug())
+manager.add_command('createsuperuser', CreateSuperUser())
 
 # collect some code and environment info so it can be logged
 app.env_attrs = {
