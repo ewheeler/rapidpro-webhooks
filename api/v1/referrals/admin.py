@@ -17,7 +17,8 @@ class RefModelView(ModelView):
     def get_query(self):
         if current_user.is_superuser:
             return super(RefModelView, self).get_query()
-        return super(RefModelView, self).get_query().filter(RefCode.country == current_user.country)
+        return super(RefModelView, self).get_query().filter(RefCode.country == current_user.country)\
+            .filter(RefCode.group == current_user.group)
 
     def is_accessible(self):
         return current_user.is_authenticated
@@ -47,7 +48,7 @@ class UserModelView(ModelView):
     can_edit = True
     can_export = False
     column_exclude_list = ['password', 'authenticated']
-    form_excluded_columns = ['authenticated', 'country_slug']
+    form_excluded_columns = ['authenticated', 'country_slug', 'group_slug']
     can_set_page_size = True
 
     def is_accessible(self):
