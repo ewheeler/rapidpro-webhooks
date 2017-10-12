@@ -202,6 +202,8 @@ class User(db.Model):
     password = db.Column(db.String)
     country = db.Column(db.String)
     country_slug = db.Column(db.String)
+    group = db.Column(db.String)
+    group_slug = db.Column(db.String)
     is_superuser = db.Column(db.Boolean, default=False)
     authenticated = db.Column(db.Boolean, default=False)
 
@@ -238,6 +240,8 @@ class User(db.Model):
     def create_slug(self):
         if self.country:
             self.country_slug = self.country.lower().replace(" ", "_")
+        if self.group:
+            self.group_slug = self.group.lower().replace(" ","_")
 
     def logout(self):
         self.authenticated = False
