@@ -36,21 +36,17 @@ def nomenklatura_create_entity():
                                       field='name',
                                       resource=rule_link(request.url_rule))
 
-        if 'attributes' not in data:
-            raise exceptions.APIError(message='Missing field: attributes',
-                                      field='attributes',
-                                      resource=rule_link(request.url_rule))
-
-        # rapidpro doesnt send json post data. instead we'll have a form field
-        # with a json string inside rather than a dict from request.json
-        if not isinstance(data['attributes'], dict):
-            try:
-                # request.values is a CombinedMultiDict, so convert to dict
-                data = data.to_dict()
-                data['attributes'] = json.loads(data['attributes'])
-            except ValueError:
-                # we didn't get json or anything json-like, so abort
-                abort(400)
+        if 'attributes' in data:
+            # rapidpro doesnt send json post data. instead we'll have a form field
+            # with a json string inside rather than a dict from request.json
+            if not isinstance(data['attributes'], dict):
+                try:
+                    # request.values is a CombinedMultiDict, so convert to dict
+                    data = data.to_dict()
+                    data['attributes'] = json.loads(data['attributes'])
+                except ValueError:
+                    # we didn't get json or anything json-like, so abort
+                    abort(400)
 
         payload = {'format': 'json'}
         payload['api_key'] = NOMENKLATURA_API_KEY
@@ -58,7 +54,8 @@ def nomenklatura_create_entity():
         # attribute values for nomenklatura must be strings (no ints!)
         # as nomenklatura uses postgres' hstore to store attribute kv pairs
         # TODO this smells dodgy
-        payload['attributes'] = {str(k): str(v) for k,v in data['attributes'].items()}
+        if attributes in data:
+            payload['attributes'] = {str(k): str(v) for k,v in data['attributes'].items()}
         
         payload['dataset'] = data['dataset']
         payload['name'] = data['name']
