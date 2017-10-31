@@ -54,7 +54,7 @@ def nomenklatura_create_entity():
         # attribute values for nomenklatura must be strings (no ints!)
         # as nomenklatura uses postgres' hstore to store attribute kv pairs
         # TODO this smells dodgy
-        if attributes in data:
+        if 'attributes' in data:
             payload['attributes'] = {str(k): str(v) for k,v in data['attributes'].items()}
         
         payload['dataset'] = data['dataset']
