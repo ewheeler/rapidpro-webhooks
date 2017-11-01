@@ -50,6 +50,8 @@ def nomenklatura_create_entity():
 
         payload = {'format': 'json'}
         payload['api_key'] = NOMENKLATURA_API_KEY
+        # nomenklatura complains if we don't include `attributes`
+        payload['attributes'] = {}
 
         # attribute values for nomenklatura must be strings (no ints!)
         # as nomenklatura uses postgres' hstore to store attribute kv pairs
