@@ -27,10 +27,7 @@ def _url_for_entity(entity_id):
 @limit(max_requests=1000, period=60, by="ip")
 def nomenklatura_retrieve_entity_attributes():
 
-    if request.json is not None:
-        data = request.json
-    else:
-        data = request.values
+    data = request.values
 
     if data:
         if 'entity' not in data:
@@ -67,10 +64,7 @@ def nomenklatura_retrieve_entity_attributes():
 @api.route('/nomenklatura/entity', methods=['POST',])
 @limit(max_requests=1000, period=60, by="ip")
 def nomenklatura_update_entity_attributes():
-    if request.json is not None:
-        data = request.json
-    else:
-        data = request.values
+    data = request.values
 
     if data:
         if 'entity' not in data:

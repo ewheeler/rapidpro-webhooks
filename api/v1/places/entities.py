@@ -25,10 +25,7 @@ NOMENKLATURA_HEADERS = {"Authorization": "e5d2155a-d0e5-477f-97ba-762ed14af407"}
 @api.route('/nomenklatura/entities', methods=['POST',])
 @limit(max_requests=1000, period=60, by="ip")
 def nomenklatura_create_entity():
-    if request.json is not None:
-        data = request.json
-    else:
-        data = request.values
+    data = request.values
 
     if data:
         if 'name' not in data:

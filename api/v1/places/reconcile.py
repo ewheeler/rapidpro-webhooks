@@ -30,10 +30,7 @@ def nominatum():
         Nominatim does not do any fuzzy matching, so
         not so helpful for user-provided spellings.
     """
-    if request.json is not None:
-        data = request.json
-    else:
-        data = request.values
+    data = request.values
 
     if data:
         payload = {'format': 'json'}
@@ -129,10 +126,7 @@ def nomenklatura():
     # TODO better logging
     log = dict({'timestamp': datetime.datetime.utcnow().isoformat()})
 
-    if request.json is not None:
-        data = request.json
-    else:
-        data = request.values
+    data = request.values
 
     if data:
         try:
