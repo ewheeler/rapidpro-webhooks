@@ -3,4 +3,4 @@ from settings.base import *
 SERVER_PORT = 5050
 DEBUG = False
 LOG_FILE = '/var/log/webhooks/errors.log'
-SENTRY_DSN = 'https://15d326cf18eb4d328a486a2e91a8759f:d6479a6dc40143b79aaf54fdfedda4e9@sentry.io/281376'
+SENTRY_DSN = 'https://e7682193cbf6493da12202f0a797a10c:7f344bbc776e4298a88e54a8a6e7df1e@sentry.io/295434'
