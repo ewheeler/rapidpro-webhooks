@@ -149,7 +149,7 @@ def nomenklatura():
         payload = {'format': 'json'}
 
         # titlecase the query for better chance of exact match
-        query = _clean_query(data['query']).title()
+        query = data['query'].title()
         payload['query'] = query
         payload['api_key'] = NOMENKLATURA_API_KEY
 
