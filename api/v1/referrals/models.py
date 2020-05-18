@@ -1,10 +1,13 @@
 import logging
+
 from flask.ext.login import login_user, logout_user
+
+from settings.base import RAPIDPRO_EMAIL
 from sqlalchemy import desc
 from sqlalchemy.event import listens_for
-from api.v1.fusiontables.utils import build_service, build_drive_service
-from ..db import db
-from settings.base import RAPIDPRO_EMAIL
+
+from api.v1.db import db
+from api.v1.fusiontables.utils import build_drive_service, build_service
 
 __author__ = 'kenneth'
 
@@ -78,7 +81,6 @@ class RefCode(db.Model):
     def get_with_no_ft_id(cls):
         return cls.query.filter_by(ft_id=None)
 
-
     @classmethod
     def get_main_ft_id(cls):
         return FT.query.first().ft_id
@@ -103,14 +105,12 @@ class RefCode(db.Model):
             if code.in_ft:
                 sql = "UPDATE %s SET Referrals = %d WHERE ROWID = '%s'" % (cls.get_main_ft_id(),
                                                                            code.get_referral_count(), code.ft_row_id)
-                print sql
                 service.query().sql(sql=sql).execute()
             else:
                 values = (str(code.id), str(code.name).replace("'", "\\'"), str(code.phone), str(code.email),
                           str(code.group).replace("'", "\\'"), str(code.country).replace("'", "\\'"),
                           str(code.created_on), str(code.ft_id), str(code.get_referral_count()))
                 sql = 'INSERT INTO %s %s VALUES %s' % (cls.get_main_ft_id(), str(cls.ATTR_NAMES), str(values))
-                print sql
                 response = service.query().sql(sql=sql).execute()
                 code.in_ft = True
                 code.ft_row_id = response['rows'][0][0]
@@ -241,7 +241,7 @@ class User(db.Model):
         if self.country:
             self.country_slug = self.country.lower().replace(" ", "_")
         if self.group:
-            self.group_slug = self.group.lower().replace(" ","_")
+            self.group_slug = self.group.lower().replace(" ", "_")
 
     def logout(self):
         self.authenticated = False

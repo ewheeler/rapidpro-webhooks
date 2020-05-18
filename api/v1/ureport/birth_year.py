@@ -1,13 +1,10 @@
 import datetime
 
-from ..api import api  # Circular, but safe
+from flask import abort, request
 
-from flask import request
-from flask import abort
-
-from ..decorators import limit
-from ..helpers import rule_link
-from ..helpers import create_response
+from api.v1.api import api  # Circular, but safe
+from api.v1.decorators import limit
+from api.v1.helpers import create_response, rule_link
 
 
 @api.route('/ureport/birth-year', methods=['POST'])
@@ -22,7 +19,7 @@ def categorize_birth_year():
             year = years[0]['value']
             try:
                 year = int(year)
-            except:
+            except BaseException:
                 year = int(year.split(' ')[0])
             age = datetime.datetime.utcnow().year - year
             if age <= 13:

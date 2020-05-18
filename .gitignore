@@ -18,3 +18,4 @@ data/
 .idea/
 sample_query.json
 auth
+.venv/

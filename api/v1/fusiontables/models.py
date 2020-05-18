@@ -1,10 +1,12 @@
-from collections import OrderedDict
 import json
+from collections import OrderedDict
 from datetime import datetime
+
 from ordered_set import OrderedSet
-from api.v1.db import db
-from api.v1.fusiontables.utils import build_service, build_drive_service
 from settings.base import RAPIDPRO_EMAIL
+
+from api.v1.db import db
+from api.v1.fusiontables.utils import build_drive_service, build_service
 
 
 class Flow(db.Model):
@@ -47,7 +49,8 @@ class Flow(db.Model):
         columns = [{'name': 'phone', 'type': 'STRING'}]
         n = []
         for v in values:
-            if v.get('node') in n: continue
+            if v.get('node') in n:
+                continue
             columns.append({'name': '%s (value)' % v.get('label'), 'type': 'STRING'})
             columns.append({'name': '%s (category)' % v.get('label'), 'type': 'STRING'})
             n.append(v.get('node'))
@@ -85,7 +88,8 @@ class Flow(db.Model):
         _order = [str(phone)]
         nodes = OrderedDict()
         for c in columns:
-            if c == 'phone': continue
+            if c == 'phone':
+                continue
             label = c.rstrip("(value)").strip()
             for v in values:
                 n = v.get('node')

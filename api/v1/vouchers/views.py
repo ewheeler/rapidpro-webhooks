@@ -1,9 +1,10 @@
 from flask import request
-from ..api import api
-from models import Voucher
-from ..helpers import create_response
-from ..decorators import limit
-from ..exceptions import VoucherException
+
+from api.v1.api import api
+from api.v1.decorators import limit
+from api.v1.exceptions import VoucherException
+from api.v1.helpers import create_response
+from api.v1.vouchers.models import Voucher
 
 __author__ = 'kenneth'
 
@@ -22,4 +23,3 @@ def validate_voucher():
     except VoucherException as e:
         response['reason'] = str(e)
     return create_response(response)
-

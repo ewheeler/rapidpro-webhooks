@@ -1,13 +1,10 @@
 import datetime
 
-from ..api import api  # Circular, but safe
+from flask import abort, request
 
-from flask import request
-from flask import abort
-
-from ..decorators import limit
-from ..helpers import rule_link
-from ..helpers import create_response
+from api.v1.api import api  # Circular, but safe
+from api.v1.decorators import limit
+from api.v1.helpers import create_response, rule_link
 
 
 @api.route('/thousand/last-menses', methods=['POST'])
@@ -22,7 +19,7 @@ def calculate_last_menses():
             weeks = weeks[0]['value']
             try:
                 weeks = int(weeks)
-            except:
+            except BaseException:
                 weeks = int(weeks.split(' ')[0])
             days_since_menses = weeks * 7
             last_menses_date = datetime.datetime.utcnow() - \

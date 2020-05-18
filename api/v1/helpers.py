@@ -2,13 +2,12 @@ import operator
 import re
 import socket
 
+from flask import request, url_for
+
 from unidecode import unidecode
-from flask import url_for
-from flask import request
 
-from serializers import registry
-import exceptions
-
+from api.v1 import exceptions
+from api.v1.serializers import registry
 
 # serializer content types (e.g., 'application/json')
 SERIALIZER_TYPES = [registry.get(c[0]).content_type for c in registry.choices]
@@ -38,8 +37,7 @@ def serialize_data_to_response(data=None, serializer_slug=None):
         serializer_slug = registry.default.content_type
 
     try:
-        assert (serializer_slug in SERIALIZER_FORMATS
-                or serializer_slug in SERIALIZER_TYPES)
+        assert (serializer_slug in SERIALIZER_FORMATS or serializer_slug in SERIALIZER_TYPES)
     except AssertionError:
         raise exceptions.APIError(code=422,
                                   message='invalid serialization format',
@@ -97,8 +95,8 @@ def rule_link(url_rule):
 
 def only_digits(text):
     result = ""
-    if isinstance(text, basestring):
-        result = re.sub("\D", "", text)
+    if isinstance(text, str):
+        result = re.sub(r"\D", "", text)
     return result
 
 
@@ -109,7 +107,7 @@ def only_digits(text):
 # from http://code.activestate.com/recipes/66439-stringvalidator/?in=user-114221#c14
 # matches "Bob_O'Reilly+tag@example.com" and "a@b.dk"
 # but not "foobar@dk" (which a valid, working address)
-_email_pat = re.compile("^[^\s]+@[^\s]+\.[^\s]{2,3}$")
+_email_pat = re.compile(r"^[^\s]+@[^\s]+\.[^\s]{2,3}$")
 
 
 def is_possible_email(email_str):
@@ -126,10 +124,10 @@ def is_possible_email(email_str):
 # http://www.seanelavelle.com/2012/04/16/checking-for-a-valid-ip-in-python/
 def is_valid_ipv4_address(address):
     try:
-        addr = socket.inet_pton(socket.AF_INET, address)
+        socket.inet_pton(socket.AF_INET, address)
     except AttributeError:  # no inet_pton here, sorry
         try:
-            addr = socket.inet_aton(address)
+            socket.inet_aton(address)
         except socket.error:
             return False
         return address.count('.') == 3
@@ -141,7 +139,7 @@ def is_valid_ipv4_address(address):
 
 def is_valid_ipv6_address(address):
     try:
-        addr = socket.inet_pton(socket.AF_INET6, address)
+        socket.inet_pton(socket.AF_INET6, address)
     except socket.error:  # not a valid address
         return False
     return True

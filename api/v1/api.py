@@ -1,10 +1,9 @@
-from flask import Blueprint
-from flask import g
-from flask import request
-from flask import current_app
+from flask import Blueprint, current_app, g, request
+
 import couchdbkit
 
-import serializers
+# import endpoints AFTER defining blueprint and registering serializers
+from api.v1 import serializers
 
 # register msgpack serializer (json is registered by default)
 serializers.registry.register(serializers.MsgpackSerializer, 'msgpack')
@@ -12,8 +11,6 @@ serializers.registry.register(serializers.MsgpackSerializer, 'msgpack')
 # define blueprint
 api = Blueprint('api', __name__)
 
-# import endpoints AFTER defining blueprint and registering serializers
-import endpoints
 
 # TODO should load options from settings!
 # TODO should this live here or in server.py

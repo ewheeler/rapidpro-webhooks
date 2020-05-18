@@ -2,9 +2,9 @@ import random
 from datetime import datetime
 
 from stdnum import verhoeff
-from ..db import db
 
-from ..exceptions import VoucherException
+from api.v1.db import db
+from api.v1.exceptions import VoucherException
 
 __author__ = 'kenneth'
 

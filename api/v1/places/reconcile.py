@@ -1,18 +1,14 @@
 import datetime
+
+from flask import abort, g, request
+
+import requests
 from simplejson import JSONDecodeError
 
-from ..api import api  # Circular, but safe
-
-from flask import request
-from flask import abort
-from flask import g
-import requests
-
-from ..decorators import limit
-from ..helpers import rule_link
-from ..helpers import create_response
-from .. import exceptions
-
+from api.v1 import exceptions
+from api.v1.api import api  # Circular, but safe
+from api.v1.decorators import limit
+from api.v1.helpers import create_response, rule_link
 
 # TODO move these to settings!
 NOMINATUM_URL = "http://nominatim.openstreetmap.org/search"
@@ -77,6 +73,7 @@ def _format_type(loc_type):
     else:
         return 'District'
 
+
 EXCLUDE = set(['DISTRICT', 'VDC', 'MUNICIPALITY', 'CITY', 'TOWN',
                'GABISA', 'NAGARPALIKA', 'JILLA',
                'HELLO', 'FROM', 'LIVE'])
@@ -103,10 +100,11 @@ def _try_harder(data, query, n=2):
     if len(tokens) > n:
         ngram_matches = list()
         for ngram in ngrams(tokens, n):
-            payload = {'format': 'json', 'api_key': NOMENKLATURA_API_KEY,
-                        'query': ' '.join(ngram)}
-            result = requests.get(_url_for_dataset(data['dataset']),
-                                params=payload)
+            payload = {
+                'format': 'json', 'api_key': NOMENKLATURA_API_KEY,
+                'query': ' '.join(ngram)
+            }
+            result = requests.get(_url_for_dataset(data['dataset']), params=payload)
             results = result.json()
 
             for match in results['result']:
@@ -183,21 +181,17 @@ def nomenklatura():
                 if match is None:
                     return create_response({'message': _localized_fail(data.get('lang', 'eng')) % _format_type(data['dataset']),
                                             'match': None,
-                                            '_links': {'self':
-                                                    rule_link(request.url_rule)}})
-            print match
+                                            '_links': {'self': rule_link(request.url_rule)}})
             if match is not None:
-                dataset_name = match[0]['type'][0]['name']
+                # dataset_name = match[0]['type'][0]['name']
                 return create_response({'message': _localized_success(data.get('lang', 'eng')) % {'loc_type': _format_type(data['dataset']), 'match': match[0]['name']},
                                         'match': match[0]['name'],
-                                        '_links': {'self':
-                                                rule_link(request.url_rule)}})
+                                        '_links': {'self': rule_link(request.url_rule)}})
 
         else:
-            dataset_name = matches[0]['type'][0]['name']
+            # dataset_name = matches[0]['type'][0]['name']
             return create_response({'message': _localized_success(data.get('lang', 'eng')) % {'loc_type': _format_type(data['dataset']), 'match': matches[0]['name']},
                                     'match': matches[0]['name'],
-                                    '_links': {'self':
-                                               rule_link(request.url_rule)}})
+                                    '_links': {'self': rule_link(request.url_rule)}})
 
     abort(400)

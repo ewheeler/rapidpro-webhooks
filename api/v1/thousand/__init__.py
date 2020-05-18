@@ -1,1 +1,1 @@
-from last_menses import *
+from .last_menses import *  # noqa

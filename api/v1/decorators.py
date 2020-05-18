@@ -1,15 +1,13 @@
 import functools
 import time
 import uuid
-import gevent
 
-from flask import request
-from flask import g
-from flask import jsonify
-from flask import copy_current_request_context
+from flask import copy_current_request_context, g, jsonify, request
+
+import gevent
 import redis
 
-import exceptions
+from api.v1 import exceptions
 
 r = redis.Redis()
 
@@ -60,7 +58,7 @@ def background(f):
         def task():
             try:
                 data = f(*args, **kwargs)
-            except:
+            except BaseException:
                 r.set(skey, 500)
             else:
                 r.set(skey, 200)

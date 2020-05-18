@@ -1,2 +1,2 @@
 __author__ = 'kenneth'
-from ui import ui
+from ui import ui  # noqa

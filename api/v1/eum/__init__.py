@@ -1,1 +1,1 @@
-from supply_shipments import *
+from .supply_shipments import *  # noqa

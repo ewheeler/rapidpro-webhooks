@@ -1,23 +1,10 @@
-from flask import request
-from flask import current_app
-from flask import jsonify
-
-from api import api  # Circular, but safe
-
-from .decorators import limit
-from .helpers import create_response
-from .helpers import rule_link
-from . import exceptions
+from flask import current_app, jsonify, request
 
 # import endpoints in other modules
-import thousand
-import ureport
-import mvrs
-import eum
-import places
-from vouchers.views import validate_voucher
-from fusiontables.views import save_run
-from referrals.views import create_referral, refer_referral
+from api.v1 import api  # Circular, but safe
+from api.v1 import exceptions
+from api.v1.decorators import limit
+from api.v1.helpers import create_response, rule_link
 
 
 @api.route('/', methods=['GET'])

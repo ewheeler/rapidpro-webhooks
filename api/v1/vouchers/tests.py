@@ -1,8 +1,10 @@
 from flask.ext.testing import TestCase
-from stdnum import verhoeff
-from api.v1.vouchers.models import Voucher
-from api.v1.exceptions import VoucherException
+
 from server import app, db
+from stdnum import verhoeff
+
+from api.v1.exceptions import VoucherException
+from api.v1.vouchers.models import Voucher
 
 __author__ = 'kenneth'
 
@@ -35,7 +37,7 @@ class VoucherTestCase(TestCase):
         codes = ['TE3', '87Y', '90W', 'KJ7']
         initial_count = Voucher.query.count()
         Voucher.add_external_codes(codes)
-        self.assertEqual(len(codes), Voucher.query.count()-initial_count)
+        self.assertEqual(len(codes), Voucher.query.count() - initial_count)
 
     def test_redeem(self):
         voucher = Voucher.create()
@@ -83,13 +85,13 @@ class TestViews(TestCase):
         v = Voucher.create()
         json = {
             'run': u'5921746',
-                'phone': u'+12065551212',
-                'text': v.code,
-                'flow': u'701',
-                'weeks_since_last_menses': 0,
-                'relayer': u'-1',
-                'step': u'396b6731-f9dc-4078-b8c3-46a79524babe',
-                'time': u'2014-10-29T17:45:04.291417Z'
+            'phone': u'+12065551212',
+            'text': v.code,
+            'flow': u'701',
+            'weeks_since_last_menses': 0,
+            'relayer': u'-1',
+            'step': u'396b6731-f9dc-4078-b8c3-46a79524babe',
+            'time': u'2014-10-29T17:45:04.291417Z'
         }
         response = self.client.post("/api/v1/voucher/validate", data=json)
         self.assertEquals(response.json, {'validity': 'valid'})
@@ -100,4 +102,3 @@ class TestViews(TestCase):
         response = self.client.post("/api/v1/voucher/validate", data=json)
         self.assertEquals(response.json,
                           {'validity': 'invalid', 'reason': 'Voucher does not exist'})
-

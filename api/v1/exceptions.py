@@ -1,6 +1,3 @@
-from werkzeug.exceptions import HTTPException
-
-
 class APIError(Exception):
 
     def __init__(self, message='Bad Request', response=None, code=400,

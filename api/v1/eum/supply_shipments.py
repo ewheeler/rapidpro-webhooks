@@ -1,19 +1,14 @@
 import datetime
-import random
 import json
+import random
 
-from ..api import api  # Circular, but safe
+from flask import abort, g, request
 
-from flask import request
-from flask import abort
-from flask import g
 import couchdbkit
 
-from ..decorators import limit
-from ..helpers import rule_link
-from ..helpers import create_response
-from ..helpers import slugify
-
+from api.v1.api import api  # Circular, but safe
+from api.v1.decorators import limit
+from api.v1.helpers import create_response, rule_link, slugify
 
 demo_commodities = ['bednets', 'ors', 'plumpynut', 'textbooks']
 demo_vendors = ['Acme', 'Parner Org.', 'Local NGO']
@@ -29,12 +24,12 @@ def _format_phone(phone):
 
 def _generate_shipment(phone=None):
     assert phone is not None
-    shipment = {'amount': random.randrange(100, 20000),
-                'commodity': random.choice(demo_commodities),
-                'vendor': random.choice(demo_vendors),
-                'expected': (datetime.datetime.utcnow().date() +
-                             datetime.timedelta(days=random.randrange(3, 180)))
-                             .isoformat()}
+    shipment = {
+        'amount': random.randrange(100, 20000),
+        'commodity': random.choice(demo_commodities),
+        'vendor': random.choice(demo_vendors),
+        'expected': (datetime.datetime.utcnow().date() + datetime.timedelta(days=random.randrange(3, 180))).isoformat()
+    }
     return shipment
 
 

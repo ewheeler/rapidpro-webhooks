@@ -1,2 +1,2 @@
-from notify_birth import *
-from notify_death import *
+from .notify_birth import *  # noqa
+from .notify_death import *  # noqa

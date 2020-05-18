@@ -1,12 +1,13 @@
 import json
-from flask import request, redirect, render_template
-from flask.ext.login import login_required, current_user
-from forms import LoginForm
-from models import RefCode, Referral, User
-from ..api import api
-from ..helpers import create_response
-from ..decorators import limit
 
+from flask import redirect, render_template, request
+from flask.ext.login import current_user, login_required
+
+from api.v1.api import api
+from api.v1.decorators import limit
+from api.v1.helpers import create_response
+from api.v1.referrals.forms import LoginForm
+from api.v1.referrals.models import RefCode, Referral, User
 
 __author__ = 'kenneth'
 
@@ -77,10 +78,7 @@ def refer_referral():
 @api.route('/login', methods=["GET", "POST"])
 def login():
     form = LoginForm()
-    print form.email.data
-    print form.password.data
     if form.validate_on_submit():
-        print True
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.login(form.password.data):
             return redirect('/admin')

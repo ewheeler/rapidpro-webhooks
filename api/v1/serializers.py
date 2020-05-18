@@ -1,12 +1,13 @@
+import datetime
 import functools
 import json
-import datetime
+
+from flask import Response
 
 import umsgpack
-from flask import Response
 from werkzeug.exceptions import HTTPException
 
-import loader
+from api.v1 import loader
 
 
 class SerializationError(HTTPException):
@@ -150,6 +151,7 @@ class MsgpackSerializer(Serializer):
     @property
     def slug(self):
         return 'msgpack'
+
 
 # create serializer registry with json as default
 registry = loader.Registry(default=JsonSerializer,

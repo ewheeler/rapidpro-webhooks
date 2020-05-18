@@ -1,12 +1,8 @@
-from ..api import api  # Circular, but safe
+from flask import abort, g, request
 
-from flask import request
-from flask import abort
-from flask import g
-
-from ..decorators import limit
-from ..helpers import rule_link
-from ..helpers import create_response
+from api.v1.api import api  # Circular, but safe
+from api.v1.decorators import limit
+from api.v1.helpers import create_response, rule_link
 
 
 @api.route('/mvrs/notify-birth', methods=['POST'])

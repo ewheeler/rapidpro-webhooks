@@ -1,7 +1,8 @@
-import json
 from flask.ext.testing import TestCase
-from models import Flow
+
 from server import app, db
+
+from api.v1.fusiontables.models import Flow
 
 __author__ = 'kenneth'
 
@@ -47,13 +48,13 @@ class FusionTableTestCase(TestCase):
         data = {'run': [u'155'], 'relayer': [u'-1'], 'text': [u'gse4twt'], 'flow': u'19', 'phone': u'+12065550100',
                 'step': [u'ed49df88-404f-4e21-bc74-78c8ef6b9265'],
                 'values': u'[{"category": {"eng": "All Responses"}, '
-                           u'"node": "25cc302c-f569-4a23-8f8a-0c10732b44dc", "time": "2016-07-12T13:06:48.937803Z",'
-                           u' "text": "asafater", "rule_value": "asafater", "value": "asafater", "label": "name"}, '
-                           u'{"category": {"eng": "All Responses"}, "node": "861ebab6-0129-4739-a609-36bb60ff0a66", '
-                           u'"time": "2016-07-12T13:06:50.189755Z", "text": "twfggsg", "rule_value": "twfggsg", '
-                           u'"value": "twfggsg", "label": "want"}, {"category": {"eng": "All Responses"}, '
-                           u'"node": "d7cae705-1b77-474f-8946-588f631cedbb", "time": "2016-07-12T13:06:52.343391Z", '
-                           u'"text": "gse4twt", "rule_value": "gse4twt", "value": "gse4twt", "label": "reason"}]',
+                          u'"node": "25cc302c-f569-4a23-8f8a-0c10732b44dc", "time": "2016-07-12T13:06:48.937803Z",'
+                          u' "text": "asafater", "rule_value": "asafater", "value": "asafater", "label": "name"}, '
+                          u'{"category": {"eng": "All Responses"}, "node": "861ebab6-0129-4739-a609-36bb60ff0a66", '
+                          u'"time": "2016-07-12T13:06:50.189755Z", "text": "twfggsg", "rule_value": "twfggsg", '
+                          u'"value": "twfggsg", "label": "want"}, {"category": {"eng": "All Responses"}, '
+                          u'"node": "d7cae705-1b77-474f-8946-588f631cedbb", "time": "2016-07-12T13:06:52.343391Z", '
+                          u'"text": "gse4twt", "rule_value": "gse4twt", "value": "gse4twt", "label": "reason"}]',
                 'time': [u'2016-07-12T13:06:52.387647Z'], 'steps': [u'[{"node": "19af6b8c-d5d3-43f8-b1f8-7e2728d9cac7",'
                                                                     u' "arrived_on": "2016-07-12T13:06:46.593063Z", '
                                                                     u'"left_on": "2016-07-12T13:06:46.608539Z", '
@@ -113,4 +114,3 @@ class FusionTableTestCase(TestCase):
                                     {'name': 'reason (value)', 'type': 'STRING'},
                                     {'name': 'reason (category)', 'type': 'STRING'}
                                     ])
-

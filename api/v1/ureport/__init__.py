@@ -1,1 +1,1 @@
-from birth_year import *
+from .birth_year import *  # noqa

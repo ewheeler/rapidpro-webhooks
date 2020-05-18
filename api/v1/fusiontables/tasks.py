@@ -1,9 +1,10 @@
-from celery import Celery
 from flask.ext.migrate import Migrate
-from api.v1.db import db
-from app import make_json_app
-from models import Flow
 
+from app import make_json_app
+from celery import Celery
+
+from api.v1.db import db
+from api.v1.fusiontables.models import Flow
 
 __author__ = 'kenneth'
 
@@ -20,7 +21,7 @@ app.config.update(
     PRODUCT_NAME='rpwebhooks',
 )
 
-#Celery
+# Celery
 app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
 app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
 celery = Celery("webhooks", broker=app.config['CELERY_BROKER_URL'])
@@ -28,6 +29,7 @@ celery = Celery("webhooks", broker=app.config['CELERY_BROKER_URL'])
 db.init_app(app)
 migrate = Migrate(app, db)
 app.app_context().push()
+
 
 @celery.task
 def update_fusion_table(flow_id, phone, values, email, base_language):

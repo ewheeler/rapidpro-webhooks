@@ -1,6 +1,7 @@
 from flask import redirect, request
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.login import current_user
+
 from api.v1.referrals.models import RefCode
 
 
