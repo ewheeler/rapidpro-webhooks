@@ -1,14 +1,10 @@
-# -*- coding: utf-8; Mode: python; tab-width: 4; c-basic-offset: 4; indent-tabs-mode: nil -*-
-# ex: set softtabstop=4 tabstop=4 shiftwidth=4 expandtab fileencoding=utf-8:
-
 import datetime
 import logging
 import os
 import shlex
-# stdlib
 import subprocess
 
-# python packages
+import sentry_sdk
 from celery import Celery
 from flask_admin import Admin
 from flask_login import LoginManager
@@ -16,15 +12,8 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Server
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-# http://flask.pocoo.org/docs/config/
-# load base config
 from rapidpro_webhooks import settings
-# http://flask.pocoo.org/docs/blueprints/
 from rapidpro_webhooks.api import api
-# flask extensions
-# from raven.contrib.flask import Sentry
-# from flask_debugtoolbar import DebugToolbarExtension
-# from flask_rq import RQ
 from rapidpro_webhooks.api.db import db
 from rapidpro_webhooks.api.referrals.admin import ReferralModelView, RefModelView, UserModelView
 from rapidpro_webhooks.api.referrals.models import RefCode, Referral, User
@@ -39,9 +28,6 @@ tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = make_json_app('webhooks', template_folder=tmpl_dir)
 
 app.config.from_object(settings)
-# load additional config
-# app.config.from_envvar('RPWEBHOOKS_SETTINGS')
-# and even add more config
 app.config.update(
     PRODUCT_NAME='rpwebhooks',
 )
@@ -58,9 +44,8 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 app.register_blueprint(api, url_prefix='/api/v1')
 app.register_blueprint(ui, url_prefix='/ui')
 
-if app.debug is not True:
-    from raven.contrib.flask import Sentry
-    sentry = Sentry(app, dsn=app.config.get('SENTRY_DSN'))
+if app.debug is not True and app.config['SENTRY_DSN']:
+    sentry_sdk.init(dsn=app.config['SENTRY_DSN'])
 
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -73,6 +58,8 @@ celery = Celery("webhooks", broker=app.config['CELERY_BROKER_URL'])
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))

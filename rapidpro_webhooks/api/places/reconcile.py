@@ -179,19 +179,31 @@ def nomenklatura():
                 # attempt to match each bigram of query
                 match = _try_harder(data, query, 2)
                 if match is None:
-                    return create_response({'message': _localized_fail(data.get('lang', 'eng')) % _format_type(data['dataset']),
-                                            'match': None,
-                                            '_links': {'self': rule_link(request.url_rule)}})
+                    return create_response({
+                        'message': _localized_fail(data.get('lang', 'eng')) % _format_type(data['dataset']),
+                        'match': None,
+                        '_links': {'self': rule_link(request.url_rule)}
+                    })
             if match is not None:
                 # dataset_name = match[0]['type'][0]['name']
-                return create_response({'message': _localized_success(data.get('lang', 'eng')) % {'loc_type': _format_type(data['dataset']), 'match': match[0]['name']},
-                                        'match': match[0]['name'],
-                                        '_links': {'self': rule_link(request.url_rule)}})
+                return create_response({
+                    'message': _localized_success(data.get('lang', 'eng')) % {
+                        'loc_type': _format_type(data['dataset']),
+                        'match': match[0]['name']
+                    },
+                    'match': match[0]['name'],
+                    '_links': {'self': rule_link(request.url_rule)}
+                })
 
         else:
             # dataset_name = matches[0]['type'][0]['name']
-            return create_response({'message': _localized_success(data.get('lang', 'eng')) % {'loc_type': _format_type(data['dataset']), 'match': matches[0]['name']},
-                                    'match': matches[0]['name'],
-                                    '_links': {'self': rule_link(request.url_rule)}})
+            return create_response({
+                'message': _localized_success(data.get('lang', 'eng')) % {
+                    'loc_type': _format_type(data['dataset']),
+                    'match': matches[0]['name']
+                },
+                'match': matches[0]['name'],
+                '_links': {'self': rule_link(request.url_rule)}
+            })
 
     abort(400)
