@@ -6,6 +6,10 @@ verify_ssl = true
 [dev-packages]
 pycounters = "*"
 flask-debugtoolbar = "*"
+coverage = "*"
+flake8 = "*"
+flake8-html = "*"
+isort = "*"
 
 [packages]
 alembic = "*"
@@ -65,7 +69,7 @@ Werkzeug = "*"
 flask_admin = "*"
 celery = "*"
 flask-wtf = "*"
-
+sentry-sdk = "*"
 
 [requires]
 python_version = "2.7"

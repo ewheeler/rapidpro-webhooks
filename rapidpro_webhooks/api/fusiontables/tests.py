@@ -89,7 +89,7 @@ class FusionTableTestCase(TestCase):
         email = 'rapidprodata+test@gmail.com'
         flow = Flow.create_from_run(data, email)
         assert flow in db.session
-        self.assertEquals(unicode(flow.flow_id), data.get('flow'))
+        self.assertEquals(str(flow.flow_id), data.get('flow'))
 
     def test_get_columns_from_values(self):
         values = [{"category": {"eng": "All Responses"}, "node": "25cc302c-f569-4a23-8f8a-0c10732b44dc",

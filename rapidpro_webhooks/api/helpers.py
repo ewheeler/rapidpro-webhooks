@@ -111,7 +111,7 @@ _email_pat = re.compile(r"^[^\s]+@[^\s]+\.[^\s]{2,3}$")
 
 
 def is_possible_email(email_str):
-    if not isinstance(email_str, basestring):
+    if not isinstance(email_str, str):
         return False
     email_str = email_str.strip()
     if _email_pat.search(email_str) is None:
@@ -154,4 +154,4 @@ def slugify(text, delim=u'-'):
     result = []
     for word in _punct_re.split(text.lower()):
         result.extend(unidecode(word).split())
-    return unicode(delim.join(result))
+    return str(delim.join(result))
