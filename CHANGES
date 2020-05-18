@@ -1,0 +1,11 @@
+Release 1.0
+----------------------
+* structure refactoring
+* pipenv
+* flake8 and isort
+
+
+Release 0.1
+----------------------
+
+* initial release

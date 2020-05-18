@@ -19,3 +19,8 @@ data/
 sample_query.json
 auth
 .venv/
+.env
+.envrc
+dist/
+build/
+*.egg-info/

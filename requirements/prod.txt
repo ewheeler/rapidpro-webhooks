@@ -1,9 +1,0 @@
--r base.txt
-hiredis
-circus
-chaussette
--e git+git://github.com/mozilla-services/circus-web.git#egg=circusweb
-meinheld
-fabric
-raven
-flask-assets
