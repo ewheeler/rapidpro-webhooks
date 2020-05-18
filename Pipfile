@@ -65,7 +65,7 @@ Werkzeug = "*"
 flask_admin = "*"
 celery = "*"
 flask-wtf = "*"
-
+sentry-sdk = "*"
 
 [requires]
 python_version = "2.7"

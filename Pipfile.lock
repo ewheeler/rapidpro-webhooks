@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "43cd121f38b99d5facac08732c27ab5c66aab63016e3ce576f9d406e88b04b6d"
+            "sha256": "e031253642597ee2128dcf923a846e2845d849ad140e50d3313e84554c79c46f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -333,10 +333,10 @@
         },
         "google-auth": {
             "hashes": [
-                "sha256:4942ab1ff530e740866571c0416fb5a7dc9ec53233a8f8dff63e8cd7371003d1",
-                "sha256:82d32f6601f35309c95d5917bcdf72f3ec193c7f46c79e433b8d76ccbe68e21d"
+                "sha256:73b141d122942afe12e8bfdcb6900d5df35c27d39700f078363ba0b1298ad33b",
+                "sha256:fbf25fee328c0828ef293459d9c649ef84ee44c0b932bb999d19df0ead1b40cf"
             ],
-            "version": "==1.14.3"
+            "version": "==1.15.0"
         },
         "google-auth-httplib2": {
             "hashes": [
@@ -738,6 +738,14 @@
             ],
             "markers": "python_version < '3.5'",
             "version": "==1.10.0"
+        },
+        "sentry-sdk": {
+            "hashes": [
+                "sha256:0e5e947d0f7a969314aa23669a94a9712be5a688ff069ff7b9fc36c66adc160c",
+                "sha256:799a8bf76b012e3030a881be00e97bc0b922ce35dde699c6537122b751d80e2c"
+            ],
+            "index": "pypi",
+            "version": "==0.14.4"
         },
         "simplejson": {
             "hashes": [

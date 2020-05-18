@@ -59,9 +59,9 @@ app.register_blueprint(api, url_prefix='/api/v1')
 app.register_blueprint(ui, url_prefix='/ui')
 
 if app.debug is not True:
-    from raven.contrib.flask import Sentry
-    sentry = Sentry(app, dsn=app.config.get('SENTRY_DSN'))
-
+if app.debug is not True and app.config['SENTRY_DSN']:
+    sentry_sdk.init(dsn=app.config['SENTRY_DSN'])
+    
 db.init_app(app)
 migrate = Migrate(app, db)
 
