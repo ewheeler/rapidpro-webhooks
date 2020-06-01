@@ -2,8 +2,6 @@ from flask import Flask, jsonify
 
 from werkzeug.exceptions import default_exceptions, HTTPException
 
-# from flask_migrate import Migrate
-
 
 def make_json_app(import_name, **kwargs):
     """
@@ -23,9 +21,11 @@ def make_json_app(import_name, **kwargs):
                                 else 500)
         return response
 
-    app = Flask(import_name, **kwargs)
+    app = Flask(import_name, static_folder='rapidpro_webhooks/static', **kwargs)
 
-    for code in default_exceptions.iterkeys():
-        app.error_handler_spec[None][code] = make_json_error
+    for code in default_exceptions.keys():
+        @app.errorhandler(code)
+        def page_not_found(error):
+            return make_json_error(error), code
 
     return app

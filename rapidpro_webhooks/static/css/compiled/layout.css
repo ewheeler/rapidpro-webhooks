@@ -1007,7 +1007,7 @@ blockquote.pull-right:before {
 	margin-top: 0;
 	margin-bottom: 0;
 	position: relative;
-	min-height: 1200px;
+	min-height: 600px;
 	padding: 15px 15px 35px 15px;
 	margin-left: 220px;
 }

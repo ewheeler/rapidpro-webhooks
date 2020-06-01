@@ -1,8 +1,10 @@
 import logging
 
-from flask_script import Command
+from flask_migrate import MigrateCommand
+from flask_script import Command, Manager, Server
 
 from rapidpro_webhooks.api.referrals.models import RefCode, User
+from rapidpro_webhooks.core import app
 
 
 class UpdateFt(Command):
@@ -44,7 +46,22 @@ class UpdateCountrySlug(Command):
 class CreateSuperUser(Command):
     def run(self):
         logging.info("Creating SuperUser")
-        email = input("Email: ")
-        password = input("Password: ")
+        email = raw_input("Email: ")
+        password = raw_input("Password: ")
         User.create_superuser(email, password)
         logging.info("Superuser created successfully")
+
+
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+manager.add_command('updateft', UpdateFt())
+manager.add_command('createft', CreateFT())
+manager.add_command('createmainft', CreateMainFT())
+manager.add_command('updatemainft', UpdateMainFT())
+manager.add_command('updatecountryslug', UpdateCountrySlug())
+manager.add_command('createsuperuser', CreateSuperUser())
+manager.add_command('runserver', Server(port=app.config.get('SERVER_PORT')))
+
+
+if __name__ == '__main__':
+    manager.run()

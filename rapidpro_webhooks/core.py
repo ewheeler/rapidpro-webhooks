@@ -3,13 +3,13 @@ import logging
 import os
 import shlex
 import subprocess
+from logging.handlers import RotatingFileHandler
 
 import sentry_sdk
 from celery import Celery
 from flask_admin import Admin
 from flask_login import LoginManager
-from flask_migrate import Migrate, MigrateCommand
-from flask_script import Manager, Server
+from flask_migrate import Migrate
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from rapidpro_webhooks import settings
@@ -20,29 +20,32 @@ from rapidpro_webhooks.api.referrals.models import RefCode, Referral, User
 from rapidpro_webhooks.app import make_json_app
 from rapidpro_webhooks.ui import ui
 
-from .manage import CreateFT, CreateMainFT, CreateSuperUser, UpdateCountrySlug, UpdateFt, UpdateMainFT
-
 __all__ = ['make_json_app']
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = make_json_app('webhooks', template_folder=tmpl_dir)
 
+
 app.config.from_object(settings)
-app.config.update(
-    PRODUCT_NAME='rpwebhooks',
-)
+app_name = app.config.get('APP_NAME')
+app.config.update(PRODUCT_NAME='rpwebhooks')
+
+log_file = app.config['LOG_FILE']
+file_handler = RotatingFileHandler(log_file, maxBytes=1024 * 1024 * 100, backupCount=20)
+file_handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+file_handler.setFormatter(formatter)
+app.logger.addHandler(file_handler)
 
 
 app.url_map.strict_slashes = False
 app._logger = logging.getLogger('rpwebhooks')
 app.logger_name = 'rpwebhooks'
 app.wsgi_app = ProxyFix(app.wsgi_app)
-# toolbar = DebugToolbarExtension(app)
-# RQ(app)
 
 
-app.register_blueprint(api, url_prefix='/api/v1')
-app.register_blueprint(ui, url_prefix='/ui')
+app.register_blueprint(api.api, url_prefix='/api/v1')
+app.register_blueprint(ui.ui, url_prefix='/ui')
 
 if app.debug is not True and app.config['SENTRY_DSN']:
     sentry_sdk.init(dsn=app.config['SENTRY_DSN'])
@@ -69,15 +72,6 @@ admin = Admin(app, name="Referrals", template_mode='bootstrap3')
 admin.add_view(RefModelView(RefCode, db.session, name="Partners"))
 admin.add_view(ReferralModelView(Referral, db.session, name="Referrals"))
 admin.add_view(UserModelView(User, db.session, name="Users"))
-
-manager = Manager(app)
-manager.add_command('db', MigrateCommand)
-manager.add_command('updateft', UpdateFt())
-manager.add_command('createft', CreateFT())
-manager.add_command('createmainft', CreateMainFT())
-manager.add_command('updatemainft', UpdateMainFT())
-manager.add_command('updatecountryslug', UpdateCountrySlug())
-manager.add_command('createsuperuser', CreateSuperUser())
 
 # collect some code and environment info so it can be logged
 app.env_attrs = {
@@ -106,17 +100,3 @@ def copyright():
 
 
 app.jinja_env.globals['copyright'] = copyright
-
-manager.add_command('runserver', Server(port=app.config.get('SERVER_PORT')))
-if __name__ == '__main__':
-    if app.debug is not True:
-        import logging
-        from logging.handlers import RotatingFileHandler
-        file_handler = RotatingFileHandler(app.config['LOG_FILE'],
-                                           maxBytes=1024 * 1024 * 100,
-                                           backupCount=20)
-        file_handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        file_handler.setFormatter(formatter)
-        app.logger.addHandler(file_handler)
-    manager.run()

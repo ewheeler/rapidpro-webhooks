@@ -9,7 +9,7 @@ PRESERVE_CONTEXT_ON_EXCEPTION = os.environ.get('PRESERVE_CONTEXT_ON_EXCEPTION', 
 GOOGLE_SERVICE_EMAIL = os.environ.get('GOOGLE_SERVICE_EMAIL', 'ft-451@rapidpro-ft.iam.gserviceaccount.com')
 RAPIDPRO_EMAIL = os.environ.get('RAPIDPRO_EMAIL', 'rapidprodata@gmail.com')
 
-SERVER_PORT = os.environ.get('SERVER_PORT', 8000)
+SERVER_PORT = os.environ.get('SERVER_PORT', 5000)
 
 LOG_FILE = os.getenv('LOG_FILE', '/var/log/webhooks/errors.log')
 
