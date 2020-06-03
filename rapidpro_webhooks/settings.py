@@ -2,7 +2,7 @@ import os
 
 SECRET_KEY = os.environ.get('SECRET_KEY', '8c717393-25ec-4f1c-aedd-96644c6ffb64')
 JSON_AS_ASCII = os.environ.get('JSON_AS_ASCII', False)
-SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL' "postgresql://postgres:@localhost/webhooks")
+SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', "postgresql://postgres:@localhost/webhooks")
 DEBUG = os.environ.get('DEBUG', False)
 PRESERVE_CONTEXT_ON_EXCEPTION = os.environ.get('PRESERVE_CONTEXT_ON_EXCEPTION', False)
 

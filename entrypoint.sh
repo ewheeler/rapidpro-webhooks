@@ -1,6 +1,6 @@
 #!/bin/bash -e
 mkdir -p /var/log/webhooks
-# python manage.py db upgrade
+python manage.py db upgrade
 
 # nginx settings
 # sets FORWARDED_ALLOW_IPS to 127.0.0.1 if not set
