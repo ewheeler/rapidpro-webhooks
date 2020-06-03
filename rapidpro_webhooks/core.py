@@ -13,11 +13,22 @@ from flask_migrate import Migrate
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from rapidpro_webhooks import settings
-from rapidpro_webhooks.api import api
-from rapidpro_webhooks.api.db import db
-from rapidpro_webhooks.api.referrals.admin import ReferralModelView, RefModelView, UserModelView
-from rapidpro_webhooks.api.referrals.models import RefCode, Referral, User
 from rapidpro_webhooks.app import make_json_app
+from rapidpro_webhooks.apps import (
+    core,
+    eum,
+    fusiontables,
+    mvrs,
+    places,
+    referrals,
+    sandbox,
+    thousand,
+    ureport,
+    vouchers,
+)
+from rapidpro_webhooks.apps.core.db import db
+from rapidpro_webhooks.apps.referrals.admin import ReferralModelView, RefModelView, UserModelView
+from rapidpro_webhooks.apps.referrals.models import RefCode, Referral, User
 from rapidpro_webhooks.ui import ui
 
 logging.basicConfig(level=logging.WARNING)
@@ -44,8 +55,17 @@ app.logger_name = 'rpwebhooks'
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
 
-app.register_blueprint(api.api, url_prefix='/api/v1')
-app.register_blueprint(ui.ui, url_prefix='/ui')
+app.register_blueprint(core.core_bp, url_prefix='/')
+app.register_blueprint(eum.eum_bp, url_prefix='/api/v1/eum/')
+app.register_blueprint(fusiontables.fusionstables_bp, url_prefix='/api/v1/ft/')
+app.register_blueprint(mvrs.mvrs_bp, url_prefix='/api/v1/mvrs/')
+app.register_blueprint(places.places_bp, url_prefix='/api/v1/')
+app.register_blueprint(referrals.referrals_bp, url_prefix='/api/v1/')
+app.register_blueprint(sandbox.sandbox_bp)
+app.register_blueprint(thousand.thousand_bp, url_prefix='/api/v1/thousand/')
+app.register_blueprint(ureport.ureport_bp, url_prefix='/api/v1/ureport/')
+app.register_blueprint(vouchers.voucher_bp, url_prefix='/api/v1/voucher/')
+app.register_blueprint(ui.ui_bp, url_prefix='/ui')
 
 if app.debug is not True and app.config['SENTRY_DSN']:
     sentry_sdk.init(dsn=app.config['SENTRY_DSN'])

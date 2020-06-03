@@ -1,8 +1,8 @@
-from flask import Blueprint, render_template
+from flask import render_template
 
-ui = Blueprint('ui', __name__)
+from rapidpro_webhooks.ui import ui_bp
 
 
-@ui.route('/', methods=['GET'])
+@ui_bp.route('/', methods=['GET'])
 def index():
     return render_template('dashboard.html')

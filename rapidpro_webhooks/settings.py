@@ -19,3 +19,5 @@ SERVER_PORT = os.environ.get('SERVER_PORT', 5000)
 LOG_FILE = os.getenv('LOG_FILE', '/var/log/webhooks/errors.log')
 
 SENTRY_DSN = os.getenv('SENTRY_DSN')
+
+NOMENKLATURA_API_KEY = os.getenv('NOMENKLATURA_API_KEY', 'invalid_key')

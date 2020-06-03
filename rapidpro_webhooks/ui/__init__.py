@@ -1,1 +1,3 @@
-from rapidpro_webhooks.ui import ui  # noqa
+from flask import Blueprint
+
+ui_bp = Blueprint('ui', __name__)

@@ -3,7 +3,7 @@ import logging
 from flask_migrate import MigrateCommand
 from flask_script import Command, Manager, Server
 
-from rapidpro_webhooks.api.referrals.models import RefCode, User
+from rapidpro_webhooks.apps.referrals.models import RefCode, User
 from rapidpro_webhooks.core import app
 
 
