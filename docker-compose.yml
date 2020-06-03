@@ -1,0 +1,47 @@
+version: '3.3'
+
+services:
+  rapidpro-webhooks:
+    image: unicef/rapidpro-webhooks:latest
+    container_name: rapidpro-webhooks
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgres://postgres:pass@db:5432/rapidpro-webhooks
+      SECRET_KEY: CHANGE_ME
+      DEBUG: 'True'
+    depends_on:
+    - db
+    - redis
+    labels:
+      - traefik.backend=rapidpro-webhooks
+      - traefik.frontend.rule=PathPrefix:/
+      - traefik.priority=1
+      - traefik.enable=true
+      - traefik.port=8000
+
+  proxy:
+    image: traefik:v1.7
+    container_name: rapidpro_webhooks_proxy
+    command: --api --docker
+    ports:
+      - "8082:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  db:
+    image: postgres:12-alpine
+    container_name: rapidpro_webhooks_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: rapidpro-webhooks
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - "./volumes/db2/data:/var/lib/postgresql/data"
+
+  redis:
+    image: redis
+    container_name: rapidpro-webhooks_redis
+    hostname: redis
+    command: ["redis-server", "--appendonly", "yes"]

@@ -1,9 +1,9 @@
 # Dev Environment
 
 ### Create your virtual environment
-`% virtualenv env`
-`% source env/bin/activate`
-`% pip install -r requirements/dev.txt`
+    pipenv install
+    psql -c 'CREATE DATABASE rapidpro-webhooks;' -U postgres
+    python manage.py runserver
 
 Next, get your databases setup. This project uses CouchDB and Postgres.
 
@@ -15,7 +15,7 @@ Simply install CouchDB for your development environment. The necessary catalog w
 
 We need some Postgres love too. To initialize, issue the following command:
 
-`% python server.py db upgrade`
+`% python manage.py db upgrade`
 
 ### Start the server
 

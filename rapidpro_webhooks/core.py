@@ -20,7 +20,7 @@ from rapidpro_webhooks.api.referrals.models import RefCode, Referral, User
 from rapidpro_webhooks.app import make_json_app
 from rapidpro_webhooks.ui import ui
 
-__all__ = ['make_json_app']
+logging.basicConfig(level=logging.WARNING)
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = make_json_app('webhooks', template_folder=tmpl_dir)
@@ -51,11 +51,10 @@ if app.debug is not True and app.config['SENTRY_DSN']:
     sentry_sdk.init(dsn=app.config['SENTRY_DSN'])
 
 db.init_app(app)
-migrate = Migrate(app, db)
+MIGRATION_DIR = os.path.join('rapidpro_webhooks', 'migrations')
+migrate = Migrate(app, db, directory=MIGRATION_DIR)
 
 # Celery
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
-app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
 celery = Celery("webhooks", broker=app.config['CELERY_BROKER_URL'])
 
 login_manager = LoginManager()
