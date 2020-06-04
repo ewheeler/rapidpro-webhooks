@@ -3,7 +3,7 @@ from stdnum import verhoeff
 
 from rapidpro_webhooks.api.exceptions import VoucherException
 from rapidpro_webhooks.api.vouchers.models import Voucher
-from rapidpro_webhooks.server import app, db
+from rapidpro_webhooks.core import app, db
 
 
 class VoucherTestCase(TestCase):

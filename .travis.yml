@@ -10,4 +10,3 @@ install:
 
 script:
   - tox -e "py${TRAVIS_PYTHON_VERSION//.}"
-# script: nosetests

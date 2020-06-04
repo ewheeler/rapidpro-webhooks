@@ -1,7 +1,7 @@
 from flask_testing import TestCase
 
 from rapidpro_webhooks.api.fusiontables.models import Flow
-from rapidpro_webhooks.server import app, db
+from rapidpro_webhooks.core import app, db
 
 
 class FusionTableTestCase(TestCase):
