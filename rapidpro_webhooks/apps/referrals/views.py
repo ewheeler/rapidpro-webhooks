@@ -9,7 +9,7 @@ from rapidpro_webhooks.apps.referrals.models import RefCode, Referral
 referrals_bp = Blueprint('referrals', __name__)
 
 
-@referrals_bp.route('referral/create', methods=['POST'])
+@referrals_bp.route('/create', methods=['POST'])
 @limit(max_requests=10000, group="voucher", by='ip')
 def create_referral():
     response = {'validity': 'invalid'}
@@ -50,7 +50,7 @@ def create_referral():
     return create_response(response)
 
 
-@referrals_bp.route('referral//refer', methods=['POST'])
+@referrals_bp.route('/refer', methods=['POST'])
 @limit(max_requests=10000, group="voucher", by='ip')
 def refer_referral():
     response = {'validity': 'invalid'}
@@ -72,6 +72,6 @@ def refer_referral():
     return create_response(response)
 
 
-@referrals_bp.route('referral/', methods=['GET'])
+@referrals_bp.route('/', methods=['GET'])
 def home():
     return create_response({'app': 'REFERRALS'})
