@@ -8,11 +8,7 @@ from rapidpro_webhooks.apps.core import exceptions
 from rapidpro_webhooks.apps.core.decorators import limit
 from rapidpro_webhooks.apps.core.helpers import create_response, rule_link
 from rapidpro_webhooks.apps.places import places_bp
-
-# TODO move to config
-NOMENKLATURA_URL = "http://nomenklatura.uniceflabs.org/api/2/entities"
-NOMENKLATURA_API_KEY = "e5d2155a-d0e5-477f-97ba-762ed14af407"
-NOMENKLATURA_HEADERS = {"Authorization": NOMENKLATURA_API_KEY}
+from rapidpro_webhooks.apps.places.views import NOMENKLATURA_API_KEY, NOMENKLATURA_HEADERS, NOMENKLATURA_URL
 
 
 @places_bp.route('/nomenklatura/entities', methods=['POST', ])
@@ -54,7 +50,7 @@ def nomenklatura_create_entity():
         if 'description' in data:
             payload['description'] = data['description']
 
-        result = requests.post(NOMENKLATURA_URL,
+        result = requests.post(NOMENKLATURA_URL + 'entities',
                                headers=NOMENKLATURA_HEADERS,
                                json=payload)
 

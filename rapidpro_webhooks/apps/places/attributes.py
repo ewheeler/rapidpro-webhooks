@@ -3,20 +3,17 @@ import json
 from flask import abort, request
 
 import requests
+from simplejson import JSONDecodeError
 
 from rapidpro_webhooks.apps.core import exceptions
 from rapidpro_webhooks.apps.core.decorators import limit
 from rapidpro_webhooks.apps.core.helpers import create_response, rule_link
 from rapidpro_webhooks.apps.places import places_bp
-
-# TODO move to config
-NOMENKLATURA_URL = "http://nomenklatura.uniceflabs.org/api/2/entities"
-NOMENKLATURA_API_KEY = "e5d2155a-d0e5-477f-97ba-762ed14af407"
-NOMENKLATURA_HEADERS = {"Authorization": NOMENKLATURA_API_KEY}
+from rapidpro_webhooks.apps.places.views import NOMENKLATURA_API_KEY, NOMENKLATURA_HEADERS, NOMENKLATURA_URL
 
 
 def _url_for_entity(entity_id):
-    return NOMENKLATURA_URL + '/' + entity_id
+    return NOMENKLATURA_URL + 'entities/' + entity_id
 
 
 @places_bp.route('/nomenklatura/entity', methods=['GET', ])
@@ -77,7 +74,7 @@ def nomenklatura_update_entity_attributes():
                 # request.values is a CombinedMultiDict, so convert to dict
                 data = data.to_dict()
                 data['attributes'] = json.loads(data['attributes'])
-            except json.JSONDecodeError:
+            except JSONDecodeError:
                 # we didn't get json or anything json-like, so abort
                 abort(400)
 

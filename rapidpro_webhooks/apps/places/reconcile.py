@@ -9,12 +9,9 @@ from rapidpro_webhooks.apps.core import exceptions
 from rapidpro_webhooks.apps.core.decorators import limit
 from rapidpro_webhooks.apps.core.helpers import create_response, rule_link
 from rapidpro_webhooks.apps.places import places_bp
+from rapidpro_webhooks.apps.places.views import NOMENKLATURA_API_KEY, NOMENKLATURA_URL, NOMINATUM_URL
 
 EXCLUDE = {'DISTRICT', 'VDC', 'MUNICIPALITY', 'CITY', 'TOWN', 'GABISA', 'NAGARPALIKA', 'JILLA', 'HELLO', 'FROM', 'LIVE'}
-NOMINATUM_URL = "http://nominatim.openstreetmap.org/search"
-
-NOMENKLATURA_URL = "http://nomenklatura.uniceflabs.org/api/2/datasets"
-NOMENKLATURA_API_KEY = "e5d2155a-d0e5-477f-97ba-762ed14af407"
 
 
 @places_bp.route('/nominatum/reconcile', methods=['GET', 'POST'])
@@ -87,7 +84,7 @@ def ngrams(tokens, n=2):
 
 
 def _url_for_dataset(dataset):
-    return NOMENKLATURA_URL + '/' + dataset + '/reconcile'
+    return NOMENKLATURA_URL + 'datasets/' + dataset + '/reconcile'
 
 
 def _try_harder(data, query, n=2):
