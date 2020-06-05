@@ -26,9 +26,11 @@ from rapidpro_webhooks.apps import (
     ureport,
     vouchers,
 )
+from rapidpro_webhooks.apps.core import User
+from rapidpro_webhooks.apps.core.admin import UserModelView
 from rapidpro_webhooks.apps.core.db import db
-from rapidpro_webhooks.apps.referrals.admin import ReferralModelView, RefModelView, UserModelView
-from rapidpro_webhooks.apps.referrals.models import RefCode, Referral, User
+from rapidpro_webhooks.apps.referrals.admin import ReferralModelView, RefModelView
+from rapidpro_webhooks.apps.referrals.models import RefCode, Referral
 from rapidpro_webhooks.ui import ui
 
 logging.basicConfig(level=logging.WARNING)
@@ -88,9 +90,9 @@ def load_user(user_id):
 
 
 admin = Admin(app, name="Referrals", template_mode='bootstrap3')
+admin.add_view(UserModelView(User, db.session, name="Users"))
 admin.add_view(RefModelView(RefCode, db.session, name="Partners"))
 admin.add_view(ReferralModelView(Referral, db.session, name="Referrals"))
-admin.add_view(UserModelView(User, db.session, name="Users"))
 
 # collect some code and environment info so it can be logged
 app.env_attrs = {

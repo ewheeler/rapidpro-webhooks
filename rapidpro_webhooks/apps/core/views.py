@@ -7,7 +7,7 @@ from flask_login import current_user, login_required
 from rapidpro_webhooks.apps.core import serializers
 # register msgpack serializer (json is registered by default)
 from rapidpro_webhooks.apps.core.forms import LoginForm
-from rapidpro_webhooks.apps.referrals.models import User
+from rapidpro_webhooks.apps.core.models import User
 
 serializers.registry.register(serializers.MsgpackSerializer, 'msgpack')
 
