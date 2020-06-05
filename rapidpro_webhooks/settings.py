@@ -11,7 +11,6 @@ CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
 CELERY_TASK_ALWAYS_EAGER = os.getenv('CELERY_TASK_ALWAYS_EAGER', False)
 
-GOOGLE_SERVICE_EMAIL = os.environ.get('GOOGLE_SERVICE_EMAIL', 'ft-451@rapidpro-ft.iam.gserviceaccount.com')
 RAPIDPRO_EMAIL = os.environ.get('RAPIDPRO_EMAIL', 'rapidprodata@gmail.com')
 
 SERVER_PORT = os.environ.get('SERVER_PORT', 5000)

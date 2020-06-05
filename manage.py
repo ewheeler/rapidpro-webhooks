@@ -25,18 +25,6 @@ class CreateFT(Command):
             logging.info(code.create_ft())
 
 
-class CreateMainFT(Command):
-    def run(self):
-        logging.info("Creating Main FT")
-        RefCode.create_main_ft()
-
-
-class UpdateMainFT(Command):
-    def run(self):
-        logging.info("Updating Main FT")
-        RefCode.update_main_ft()
-
-
 class UpdateCountrySlug(Command):
     def run(self):
         logging.info("Updating Country Slug")
@@ -57,8 +45,6 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 manager.add_command('updateft', UpdateFt())
 manager.add_command('createft', CreateFT())
-manager.add_command('createmainft', CreateMainFT())
-manager.add_command('updatemainft', UpdateMainFT())
 manager.add_command('updatecountryslug', UpdateCountrySlug())
 manager.add_command('createsuperuser', CreateSuperUser())
 manager.add_command('runserver', Server(port=app.config.get('SERVER_PORT')))

@@ -14,23 +14,10 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from rapidpro_webhooks import settings
 from rapidpro_webhooks.app import make_json_app
-from rapidpro_webhooks.apps import (
-    core,
-    eum,
-    fusiontables,
-    mvrs,
-    places,
-    referrals,
-    sandbox,
-    thousand,
-    ureport,
-    vouchers,
-)
+from rapidpro_webhooks.apps import core, eum, mvrs, places, referrals, thousand, ureport, vouchers
 from rapidpro_webhooks.apps.core import User
 from rapidpro_webhooks.apps.core.admin import UserModelView
 from rapidpro_webhooks.apps.core.db import db
-from rapidpro_webhooks.apps.fusiontables import Flow
-from rapidpro_webhooks.apps.fusiontables.admin import FusionTableFlowView
 from rapidpro_webhooks.apps.referrals.admin import ReferralModelView, RefModelView
 from rapidpro_webhooks.apps.referrals.models import RefCode, Referral
 from rapidpro_webhooks.apps.vouchers import Voucher
@@ -44,6 +31,7 @@ app = make_json_app('webhooks', template_folder=tmpl_dir)
 
 
 app.config.from_object(settings)
+app.app_context().push()
 app_name = app.config.get('APP_NAME')
 app.config.update(PRODUCT_NAME='rpwebhooks')
 
@@ -63,7 +51,6 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 
 app.register_blueprint(core.core_bp, url_prefix='/')
 app.register_blueprint(eum.eum_bp, url_prefix='/api/v1/eum/')
-app.register_blueprint(fusiontables.fusionstables_bp, url_prefix='/api/v1/ft/')
 app.register_blueprint(mvrs.mvrs_bp, url_prefix='/api/v1/mvrs/')
 app.register_blueprint(places.places_bp, url_prefix='/api/v1/')
 app.register_blueprint(referrals.referrals_bp, url_prefix='/api/v1/referral')
@@ -71,7 +58,6 @@ app.register_blueprint(thousand.thousand_bp, url_prefix='/api/v1/thousand/')
 app.register_blueprint(ureport.ureport_bp, url_prefix='/api/v1/ureport/')
 app.register_blueprint(vouchers.voucher_bp, url_prefix='/api/v1/voucher/')
 app.register_blueprint(ui.ui_bp, url_prefix='/ui')
-app.register_blueprint(sandbox.sandbox_bp)
 
 if app.debug is not True and app.config['SENTRY_DSN']:
     sentry_sdk.init(dsn=app.config['SENTRY_DSN'])
@@ -97,7 +83,6 @@ admin = Admin(app, name="Admin", template_mode='bootstrap3')
 admin.add_view(UserModelView(User, db.session, name="Users"))
 admin.add_view(RefModelView(RefCode, db.session, name="Partners"))
 admin.add_view(ReferralModelView(Referral, db.session, name="Referrals"))
-admin.add_view(FusionTableFlowView(Flow, db.session, name="Fusion Table Flows"))
 admin.add_view(VoucherView(Voucher, db.session, name="Vouchers", endpoint="vouchers"))
 
 # collect some code and environment info so it can be logged

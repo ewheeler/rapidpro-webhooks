@@ -1,10 +1,6 @@
-import logging
-
 from sqlalchemy import desc
 
 from rapidpro_webhooks.apps.core.db import db
-from rapidpro_webhooks.apps.fusiontables.utils import build_drive_service, build_service
-from rapidpro_webhooks.settings import RAPIDPRO_EMAIL
 
 
 class FT(db.Model):
@@ -80,40 +76,6 @@ class RefCode(db.Model):
     def get_main_ft_id(cls):
         return FT.query.first().ft_id
 
-    @classmethod
-    def create_main_ft(cls):
-        service = build_service()
-        table = {'name': "Ureport Referrals", 'description': "Code and the number of referrals per code",
-                 'isExportable': True, 'columns': cls.ATTR}
-        table = service.table().insert(body=table).execute()
-        service = build_drive_service()
-        body = {'role': 'writer', 'type': 'user', 'emailAddress': RAPIDPRO_EMAIL, 'value': RAPIDPRO_EMAIL}
-        service.permissions().insert(fileId=table.get('tableId'), body=body, sendNotificationEmails=True).execute()
-        db.session.add(FT(ft_id=table.get('tableId')))
-        db.session.commit()
-        return table
-
-    @classmethod
-    def update_main_ft(cls):
-        service = build_service()
-        for code in cls.query.all():
-            if code.in_ft:
-                sql = "UPDATE %s SET Referrals = %d WHERE ROWID = '%s'" % (cls.get_main_ft_id(),
-                                                                           code.get_referral_count(), code.ft_row_id)
-                service.query().sql(sql=sql).execute()
-            else:
-                values = (str(code.id), str(code.name).replace("'", "\\'"), str(code.phone), str(code.email),
-                          str(code.group).replace("'", "\\'"), str(code.country).replace("'", "\\'"),
-                          str(code.created_on), str(code.ft_id), str(code.get_referral_count()))
-                sql = 'INSERT INTO %s %s VALUES %s' % (cls.get_main_ft_id(), str(cls.ATTR_NAMES), str(values))
-                response = service.query().sql(sql=sql).execute()
-                code.in_ft = True
-                code.ft_row_id = response['rows'][0][0]
-                db.session.add(code)
-                db.session.commit()
-
-            logging.info(sql)
-
     def get_prefix(self):
         return "%s%s0" % (self.country[:2], self.group)
 
@@ -134,39 +96,6 @@ class RefCode(db.Model):
     @property
     def ref_count(self):
         return self.get_referral_count()
-
-    def create_ft(self):
-        service = build_service()
-        table = {'name': self.name, 'description': "Referrals for Code %s" % self.id, 'isExportable': True,
-                 'columns': self.COLUMNS}
-        table = service.table().insert(body=table).execute()
-        self.ft_id = table.get('tableId')
-        self.give_rapidpro_permission()
-        self.give_rapidpro_permission(RAPIDPRO_EMAIL)
-        db.session.add(self)
-        db.session.commit()
-        return table
-
-    def update_fusion_table(self):
-        service = build_service()
-        refs = self.get_referrals(True) if self.last_ft_update else self.get_referrals()
-        values = [str((str(ref.rapidpro_uuid), str(ref.created_on))) for ref in refs]
-        v = [(ref.rapidpro_uuid, str(ref.created_on)) for ref in refs]
-        if values:
-            self.last_ft_update = v[0][1]
-            sql = 'INSERT INTO %s %s VALUES %s' % (self.ft_id, str(self.COLUMN_NAMES), ','.join(values))
-            logging.info(sql)
-            update = service.query().sql(sql=sql).execute()
-            db.session.add(self)
-            db.session.commit()
-            return update
-
-    def give_rapidpro_permission(self, email=None):
-        if not email:
-            email = self.email or RAPIDPRO_EMAIL
-        service = build_drive_service()
-        body = {'role': 'writer', 'type': 'user', 'emailAddress': email, 'value': email}
-        return service.permissions().insert(fileId=self.ft_id, body=body, sendNotificationEmails=True).execute()
 
 
 class Referral(db.Model):

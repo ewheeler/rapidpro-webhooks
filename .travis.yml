@@ -3,10 +3,17 @@ language: python
 sudo: false
 
 python:
-  - 3.8
+  - 2.7
+
+env:
+  global:
+    - LOG_FILE=errors.log
 
 install:
   - pip install tox codecov
 
 script:
   - tox -e "py${TRAVIS_PYTHON_VERSION//.}"
+
+services:
+  - redis
