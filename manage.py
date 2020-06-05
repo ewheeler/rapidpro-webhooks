@@ -35,8 +35,8 @@ class UpdateCountrySlug(Command):
 class CreateSuperUser(Command):
     def run(self):
         logging.info("Creating SuperUser")
-        email = raw_input("Email: ")
-        password = raw_input("Password: ")
+        email = input("Email: ")
+        password = input("Password: ")
         User.create_superuser(email, password)
         logging.info("Superuser created successfully")
 

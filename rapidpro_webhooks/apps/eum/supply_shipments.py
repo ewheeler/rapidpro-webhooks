@@ -4,8 +4,6 @@ import random
 
 from flask import abort, Blueprint, g, request
 
-import couchdbkit
-
 from rapidpro_webhooks.apps.core.decorators import limit
 from rapidpro_webhooks.apps.core.helpers import create_response, rule_link, slugify
 
@@ -46,8 +44,6 @@ def _update_shipment_status(request, labels):
         values = data.get('values')
 
         if phone:
-            shipments_doc = g.db.open_doc('shipments-%s' % phone)
-            shipments_status = shipments_doc.get('shipments-status', [])
             shipment_data = {}
             for value in values:
                 if value['label'].upper() in labels:
@@ -55,30 +51,7 @@ def _update_shipment_status(request, labels):
                                           value['value']})
 
             shipment_data.update({'webhook_data': data})
-
-            shipments_status.append(shipment_data)
-            shipments_doc.update({'shipments-status': shipments_status})
-            g.db.save_doc(shipments_doc)
             return shipment_data
-
-
-def get_or_create_shipments_doc(phone=None):
-    assert phone is not None
-    try:
-        shipments_doc = g.db.open_doc('shipments-%s' % phone)
-        shipments = shipments_doc.get('shipments', [])
-        shipments_status = shipments_doc.get('shipments-status', [])
-        # TODO actually check for an outstanding shipment
-        if ((shipments_status is None) or (shipments is None))\
-           or (len(shipments) == len(shipments_status)):
-            shipments.append(_generate_shipment(phone))
-            shipments_doc.update({'shipments': shipments})
-            g.db.save_doc(shipments_doc)
-    except couchdbkit.ResourceNotFound:
-        new_shipments_doc = {'_id': 'shipments-%s' % phone,
-                             'shipments': [_generate_shipment(phone)]}
-        shipments_doc = g.db.save_doc(new_shipments_doc)
-    return shipments_doc
 
 
 @eum_bp.route('/shipments', methods=['POST'])
@@ -92,12 +65,7 @@ def expected_shipments_for_contact():
     if data:
         phone = _format_phone(data.get('phone'))
         if phone:
-            shipments_doc = get_or_create_shipments_doc(phone)
-            shipments_doc = g.db.open_doc('shipments-%s' % phone)
-            shipments = shipments_doc.get('shipments')
-            if shipments:
-                return create_response({'shipment': shipments.pop(),
-                                        '_links': {'self': rule_link(request.url_rule)}})
+            return create_response({'shipment': data.pop(), '_links': {'self': rule_link(request.url_rule)}})
     abort(400)
 
 

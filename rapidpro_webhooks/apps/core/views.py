@@ -1,6 +1,5 @@
-from flask import Blueprint, redirect, render_template
+from flask import Blueprint, current_app, redirect, render_template
 
-import couchdbkit
 # import endpoints AFTER defining blueprint and registering serializers
 from flask_login import current_user, login_required
 
@@ -14,58 +13,31 @@ serializers.registry.register(serializers.MsgpackSerializer, 'msgpack')
 
 core_bp = Blueprint('core', __name__)
 
-# TODO should load options from settings!
-# TODO should this live here or in server.py
-cdb_server = couchdbkit.Server()
-
 
 @core_bp.route('/', methods=['GET'])
 def index():
     return render_template('dashboard.html')
 
 
-# @api_bp.before_request
-# def select_datastore():
-#     """
-#     TODO this gets/creates a couchdb database with the name of
-#     whatever comes next after /api/v1/ in the path.
-#     which assumes the convention of grouping endpoints
-#     by path fragment. would like to use the enclosing
-#     module (e.g., all endoints in the mvrs module) but
-#     that might be less flexible...
-#     this smells error-prone, though...
-#     """
-#     # remove empty strings
-#     fragments = [fragment for fragment in request.url_rule.rule.split('/') if fragment]
-#
-#     if len(fragments) > 2:
-#         # ['api', 'v1']
-#         service = fragments[2]
-#     else:
-#         service = 'rpwebhooks'
-#
-#     g.db = cdb_server.get_or_create_db(service)
-#
-#
-# @api_bp.after_request
-# def inject_rate_limit_headers(response):
-#     try:
-#         max_requests, remaining, reset = map(int, g.view_limits)
-#     except (AttributeError, ValueError):
-#         return response
-#     else:
-#         response.headers.add('X-RateLimit-remaining', remaining)
-#         response.headers.add('X-RateLimit-limit', max_requests)
-#         response.headers.add('X-RateLimit-reset', reset)
-#         return response
-#
-#
-# @api_bp.after_request
-# def inject_debug_headers(response):
-#     for attr in current_app.env_attrs.keys():
-#         response.headers.add('X-RPWebhooks-Debug-%s' % (attr),
-#                              getattr(current_app, attr))
-#     return response
+@core_bp.after_request
+def inject_rate_limit_headers(response):
+    try:
+        max_requests, remaining, reset = map(int, g.view_limits)
+    except (AttributeError, ValueError):
+        return response
+    else:
+        response.headers.add('X-RateLimit-remaining', remaining)
+        response.headers.add('X-RateLimit-limit', max_requests)
+        response.headers.add('X-RateLimit-reset', reset)
+        return response
+
+
+@core_bp.after_request
+def inject_debug_headers(response):
+    for attr in current_app.env_attrs.keys():
+        response.headers.add('X-RPWebhooks-Debug-%s' % (attr),
+                             getattr(current_app, attr))
+    return response
 
 
 @core_bp.route('login', methods=["GET", "POST"])

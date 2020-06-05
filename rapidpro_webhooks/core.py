@@ -6,7 +6,6 @@ import subprocess
 from logging.handlers import RotatingFileHandler
 
 import sentry_sdk
-from celery import Celery
 from flask_admin import Admin
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -65,9 +64,6 @@ if app.debug is not True and app.config['SENTRY_DSN']:
 db.init_app(app)
 MIGRATION_DIR = os.path.join('rapidpro_webhooks', 'migrations')
 migrate = Migrate(app, db, directory=MIGRATION_DIR)
-
-# Celery
-celery = Celery("webhooks", broker=app.config['CELERY_BROKER_URL'])
 
 login_manager = LoginManager()
 login_manager.init_app(app)

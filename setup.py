@@ -26,8 +26,8 @@ setup(
     long_description='',
     classifiers=[
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.8',
         'Framework :: Flask',
         'Framework :: Flake8',
     ],

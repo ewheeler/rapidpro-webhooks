@@ -17,7 +17,6 @@ def notify_birth():
     data = request.json
     if data:
         data.update({'type': 'birth'})
-        g.db.save_doc(data)
         docid = data['_id']
 
         return create_response({'id': docid,
@@ -31,7 +30,6 @@ def notify_death():
     data = request.json
     if data:
         data.update({'type': 'death'})
-        g.db.save_doc(data)
         docid = data['_id']
 
         return create_response({'id': docid,

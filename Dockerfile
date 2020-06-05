@@ -1,4 +1,4 @@
-FROM python:2.7-alpine as builder
+FROM python:3.8-alpine as builder
 
 
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
@@ -36,7 +36,7 @@ ADD Pipfile.lock .
 RUN pipenv install --system  --ignore-pipfile --deploy
 
 
-FROM python:2.7-alpine
+FROM python:3.8-alpine
 
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
 RUN apk update
@@ -56,7 +56,7 @@ WORKDIR /var/rapidpro_webhooks
 ADD . /code/
 WORKDIR /code/
 
-COPY --from=builder /usr/local/lib/python2.7/site-packages /usr/local/lib/python2.7/site-packages
+COPY --from=builder /usr/local/lib/python3.8/site-packages /usr/local/lib/python3.8/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 ENV PYTHONUNBUFFERED=1 \

@@ -18,8 +18,8 @@ class RefModelView(ModelView):
 
     def get_query(self):
         if current_user.is_superuser:
-            return super(RefModelView, self).get_query()
-        return super(RefModelView, self).get_query().filter(RefCode.country == current_user.country)\
+            return super().get_query()
+        return super().get_query().filter(RefCode.country == current_user.country)\
             .filter(RefCode.group == current_user.group)
 
     def is_accessible(self):

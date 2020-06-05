@@ -10,7 +10,7 @@ class APIError(BaseException):
         self.resource = resource
 
     def get_response(self, environment):
-        resp = super(APIError, self).get_response(environment)
+        resp = super().get_response(environment)
         resp.status = "%s %s" % (self.code, self.name.upper())
         return resp
 
